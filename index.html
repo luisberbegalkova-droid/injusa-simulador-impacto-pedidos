@@ -210,7 +210,7 @@
       </div>
     </header>
 
-    <main class="flex-1 pt-24 pb-32 px-4 md:px-8 max-w-[1600px] mx-auto w-full flex flex-col gap-8 h-full">
+    <main class="flex-1 pt-24 pb-32 px-4 md:px-8 max-w-6xl mx-auto w-full flex flex-col gap-8 h-full">
 
       <section id="statusPanel" class="status-panel glass-panel rounded-2xl p-4 items-center gap-3">
         <span id="statusIcon" class="material-symbols-outlined text-blue-300">info</span>
@@ -221,7 +221,7 @@
       </section>
 
       <section
-        class="glass-panel rounded-3xl p-6 shadow-2xl mx-auto max-w-5xl w-full z-10 transform transition-transform hover:scale-[1.01]">
+        class="glass-panel rounded-3xl p-6 shadow-2xl w-full z-10 transform transition-transform hover:scale-[1.01]">
         <div class="flex flex-col gap-6">
           <div>
             <div class="flex items-center gap-2 text-slate-400 mb-2">
@@ -234,12 +234,12 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700">
                 <label class="small-label">Cliente prioritario</label>
-                <input id="cliente" class="input-dark" placeholder="Ej: CLIENTE VIP" value="TEST VIP" />
+                <input id="cliente" class="input-dark" placeholder="Ej: CLIENTE VIP" value="" />
               </div>
 
               <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700">
                 <label class="small-label">Pedido / Ref</label>
-                <input id="pedido" class="input-dark font-mono" placeholder="Ej: VIP-001" value="VIP-001" />
+                <input id="pedido" class="input-dark font-mono" placeholder="Ej: VIP-001" value="" />
               </div>
 
               <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700">
@@ -259,8 +259,7 @@
 
             <div class="mt-4 bg-slate-800/50 rounded-2xl p-4 border border-slate-700">
               <label class="small-label">Comentario</label>
-              <textarea id="comentario" class="input-dark min-h-[46px]"
-                placeholder="Comentario opcional">Simulación desde webapp</textarea>
+              <textarea id="comentario" class="input-dark min-h-[46px]" placeholder="Comentario opcional"></textarea>
             </div>
           </div>
         </div>
@@ -418,7 +417,7 @@
           <div class="flex items-end justify-between mt-auto pt-4 gap-4">
             <div class="flex flex-col flex-1">
               <label class="small-label">Cantidad</label>
-              <input class="input-dark js-cantidad text-3xl font-black" type="number" min="1" placeholder="Cantidad" value="${escAttr(cantidad)}"/>
+              <input class="input-dark js-cantidad text-3xl font-black bg-slate-950 text-white" type="number" min="1" placeholder="Cantidad" value="${escAttr(cantidad)}"/>
             </div>
 
             <div class="flex flex-col items-end w-1/2">
