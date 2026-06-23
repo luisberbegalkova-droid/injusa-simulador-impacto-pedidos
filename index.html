@@ -402,6 +402,17 @@
         </div>
       </section>
 
+      <section id="familySummarySection" class="hidden clay-panel p-6 md:p-8">
+        <h2 class="text-2xl md:text-3xl font-semibold text-white flex items-center gap-4 mb-6">
+          <span class="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center">
+            <span class="material-symbols-outlined accent-cyan">hub</span>
+          </span>
+          Resumen por familia
+        </h2>
+
+        <div id="familySummaryCards" class="grid grid-cols-1 lg:grid-cols-2 gap-5"></div>
+      </section>
+
       <section id="stockSection" class="hidden clay-panel p-6 md:p-8">
         <h2 class="text-2xl md:text-3xl font-semibold text-white flex items-center gap-4 mb-6">
           <span class="w-10 h-10 rounded-full bg-[#48cae4]/20 flex items-center justify-center">
@@ -744,6 +755,71 @@
       renderOrderImpact(pedidos);
 
       document.getElementById("validationText").textContent = "Escenario " + (data.escenario_id || "OK");
+    }
+
+    function renderFamilySummary(rows) {
+      const section = document.getElementById("familySummarySection");
+      const wrap = document.getElementById("familySummaryCards");
+
+      if (!section || !wrap) return;
+
+      wrap.innerHTML = "";
+
+      if (!rows || !rows.length) {
+        section.classList.add("hidden");
+        return;
+      }
+
+      section.classList.remove("hidden");
+
+      rows.forEach(row => {
+        const faltante = Number(row.faltante_familia || 0);
+        const estado = String(row.estado_familia || (faltante > 0 ? "FALTA" : "OK")).toUpperCase();
+
+        const card = document.createElement("article");
+        card.className = "clay-card p-6";
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-4 mb-5">
+            <div>
+              <div class="text-peach-300/70 text-xs uppercase tracking-[0.18em] mb-2">Familia</div>
+              <div class="text-3xl font-bold text-white">${esc(row.referencia_madre)}</div>
+            </div>
+            <span class="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] severity-${faltante > 0 ? "ALTA" : "BAJA"}">${esc(estado)}</span>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div>
+              <div class="text-peach-300/70 text-xs uppercase tracking-[0.16em]">Stock familia</div>
+              <div class="text-2xl font-bold text-white">${fmt(row.stock_familia_base)}</div>
+            </div>
+            <div>
+              <div class="text-peach-300/70 text-xs uppercase tracking-[0.16em]">Demanda base</div>
+              <div class="text-2xl font-bold text-white">${fmt(row.demanda_base_familia)}</div>
+            </div>
+            <div>
+              <div class="text-peach-300/70 text-xs uppercase tracking-[0.16em]">Prioritario</div>
+              <div class="text-2xl font-bold text-white">${fmt(row.cantidad_priorizada_familia)}</div>
+            </div>
+            <div>
+              <div class="text-peach-300/70 text-xs uppercase tracking-[0.16em]">Demanda total</div>
+              <div class="text-2xl font-bold text-white">${fmt(row.demanda_total_con_prioridad)}</div>
+            </div>
+            <div>
+              <div class="text-peach-300/70 text-xs uppercase tracking-[0.16em]">Faltante</div>
+              <div class="text-2xl font-bold ${faltante > 0 ? "text-coral-400" : "text-white"}">${fmt(row.faltante_familia)}</div>
+            </div>
+            <div>
+              <div class="text-peach-300/70 text-xs uppercase tracking-[0.16em]">Sobrante</div>
+              <div class="text-2xl font-bold text-white">${fmt(row.sobrante_familia)}</div>
+            </div>
+          </div>
+
+          <div class="mt-5 h-2 rounded-full bg-black/20 overflow-hidden">
+            <div class="h-full rounded-full bg-white/50" style="width:${Math.min(100, Math.max(0, Number(row.porcentaje_cobertura || 0) * 100))}%"></div>
+          </div>
+        `;
+        wrap.appendChild(card);
+      });
     }
 
     function renderStock(rows) {
