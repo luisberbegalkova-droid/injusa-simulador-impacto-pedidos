@@ -1,583 +1,701 @@
-<!doctype html>
-<html lang="es">
+<!DOCTYPE html>
+<html class="light" lang="es">
+
 <head>
-  <meta charset="utf-8">
-  <title>Simulador impacto pedidos</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>ImpactSim Pro - Simulador de impacto de pedidos</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin href="https://fonts.gstatic.com" rel="preconnect" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            inter: ["Inter", "sans-serif"]
+          },
+          colors: {
+            slateGlass: "rgba(30, 41, 59, 0.6)"
+          }
+        }
+      }
+    }
+  </script>
 
   <style>
-    :root {
-      --bg: #f5f7fb;
-      --card: #ffffff;
-      --text: #172033;
-      --muted: #667085;
-      --border: #e5e7eb;
-      --dark: #111827;
-      --ok: #027a48;
-      --warn: #b54708;
-      --bad: #b42318;
-      --soft-ok: #ecfdf3;
-      --soft-bad: #fef3f2;
-      --soft-warn: #fffaeb;
-    }
-
     body {
-      margin: 0;
-      padding: 24px;
-      font-family: Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background-color: #0f172a;
+      background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 100%);
+      background-attachment: fixed;
+      color: #f8fafc;
+      font-family: Inter, sans-serif;
     }
 
-    .container {
-      max-width: 1250px;
-      margin: 0 auto;
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
     }
 
-    h1 {
-      margin: 0 0 6px;
-      font-size: 28px;
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
     }
 
-    h2 {
-      margin-top: 0;
-      font-size: 18px;
+    ::-webkit-scrollbar {
+      width: 0;
+      height: 0;
     }
 
-    .subtitle {
-      color: var(--muted);
-      margin-bottom: 24px;
+    .glass-panel {
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 18px;
-      box-shadow: 0 4px 14px rgba(16, 24, 40, 0.04);
+    .hover-3d {
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+      transform-style: preserve-3d;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 14px;
+    .hover-3d:hover {
+      transform: translateY(-8px) scale(1.02) rotateX(2deg);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 255, 255, 0.1);
     }
 
-    .grid-3 {
-      display: grid;
-      grid-template-columns: 2fr 1fr 2fr auto;
-      gap: 10px;
-      align-items: end;
+    .grad-critical {
+      background: linear-gradient(135deg, #f43f5e 0%, #ea580c 100%);
     }
 
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 700;
-      color: #344054;
-      margin-bottom: 6px;
+    .grad-optimal {
+      background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
     }
 
-    input, textarea, select {
+    .grad-complete {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    @keyframes pulse-glow {
+      0% {
+        box-shadow: 0 0 0 0 rgba(248, 250, 252, 0.7);
+      }
+
+      70% {
+        box-shadow: 0 0 0 20px rgba(248, 250, 252, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(248, 250, 252, 0);
+      }
+    }
+
+    .fab-glow {
+      animation: pulse-glow 2s infinite;
+    }
+
+    .input-dark {
       width: 100%;
-      box-sizing: border-box;
-      border: 1px solid #d0d5dd;
-      border-radius: 9px;
-      padding: 10px 11px;
-      font-size: 14px;
-      background: white;
-    }
-
-    textarea {
-      min-height: 42px;
-      resize: vertical;
-    }
-
-    button {
-      border: none;
-      border-radius: 9px;
-      padding: 11px 15px;
-      font-weight: 700;
-      cursor: pointer;
-      background: var(--dark);
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 14px;
       color: white;
+      padding: 11px 13px;
+      outline: none;
+      transition: all .2s ease;
     }
 
-    button.secondary {
-      background: #ffffff;
-      color: var(--dark);
-      border: 1px solid #d0d5dd;
+    .input-dark:focus {
+      border-color: rgba(96, 165, 250, 0.9);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22);
     }
 
-    button.danger {
-      background: #b42318;
+    .input-dark::placeholder {
+      color: rgba(148, 163, 184, .7);
     }
 
-    button:disabled {
-      opacity: .55;
-      cursor: not-allowed;
+    .small-label {
+      display: block;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 7px;
     }
 
-    .status {
-      padding: 12px 14px;
-      border-radius: 10px;
-      margin-bottom: 18px;
+    .severity-CRITICA,
+    .severity-ALTA {
+      background: rgba(239, 68, 68, .18);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, .35);
+    }
+
+    .severity-MEDIA {
+      background: rgba(245, 158, 11, .18);
+      color: #fcd34d;
+      border: 1px solid rgba(245, 158, 11, .35);
+    }
+
+    .severity-BAJA {
+      background: rgba(16, 185, 129, .18);
+      color: #86efac;
+      border: 1px solid rgba(16, 185, 129, .35);
+    }
+
+    .status-panel {
       display: none;
     }
 
-    .status.ok {
-      display: block;
-      color: var(--ok);
-      background: var(--soft-ok);
-    }
-
-    .status.error {
-      display: block;
-      color: var(--bad);
-      background: var(--soft-bad);
-    }
-
-    .status.loading {
-      display: block;
-      color: var(--warn);
-      background: var(--soft-warn);
-    }
-
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .metric {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-      background: #fcfcfd;
-    }
-
-    .metric small {
-      display: block;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-
-    .metric strong {
-      font-size: 24px;
-    }
-
-    .table-wrap {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-      min-width: 980px;
-    }
-
-    th, td {
-      text-align: left;
-      border-bottom: 1px solid #eaecf0;
-      padding: 9px 10px;
-      vertical-align: top;
-    }
-
-    th {
-      background: #f9fafb;
-      color: #344054;
-      font-size: 12px;
-      position: sticky;
-      top: 0;
-    }
-
-    .pill {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-      white-space: nowrap;
-    }
-
-    .sev-ALTA, .sev-CRITICA {
-      color: var(--bad);
-      background: var(--soft-bad);
-    }
-
-    .sev-MEDIA {
-      color: var(--warn);
-      background: var(--soft-warn);
-    }
-
-    .sev-BAJA {
-      color: var(--ok);
-      background: var(--soft-ok);
-    }
-
-    .line-row {
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 10px;
-      background: #fcfcfd;
-    }
-
-    .actions {
+    .status-panel.show {
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 16px;
-    }
-
-    @media (max-width: 900px) {
-      body {
-        padding: 14px;
-      }
-
-      .grid,
-      .metrics {
-        grid-template-columns: 1fr;
-      }
-
-      .grid-3 {
-        grid-template-columns: 1fr;
-      }
     }
   </style>
 </head>
 
-<body>
-  <div class="container">
-    <h1>Simulador impacto pedidos</h1>
-    <p class="subtitle">
-      Simula qué pedidos y líneas se ven afectados al reservar stock para un pedido prioritario.
-    </p>
+<body class="min-h-screen antialiased">
+  <div class="flex-1 flex flex-col min-w-0 relative">
 
-    <div id="status" class="status"></div>
-
-    <div class="card">
-      <h2>Datos del escenario</h2>
-
-      <div class="grid">
-        <div>
-          <label>Cliente prioritario</label>
-          <input id="cliente" placeholder="Ej: CLIENTE VIP">
-        </div>
-
-        <div>
-          <label>Pedido / referencia</label>
-          <input id="pedido" placeholder="Ej: VIP-001">
-        </div>
-
-        <div>
-          <label>Usuario</label>
-          <input id="usuario" placeholder="Ej: Luis" value="webapp">
-        </div>
-
-        <div>
-          <label>Prioridad</label>
-          <select id="prioridad">
-            <option value="ALTA">ALTA</option>
-            <option value="MEDIA">MEDIA</option>
-            <option value="BAJA">BAJA</option>
-          </select>
+    <header class="glass-panel flex justify-between items-center px-6 h-16 w-full fixed top-0 z-50">
+      <div class="flex items-center gap-4">
+        <div class="text-xl font-bold text-white flex items-center gap-2 tracking-tight">
+          <span class="material-symbols-outlined text-blue-400" style="font-size: 28px;">analytics</span>
+          ImpactSim Pro
         </div>
       </div>
 
-      <div style="margin-top:14px;">
-        <label>Comentario</label>
-        <textarea id="comentario" placeholder="Comentario opcional"></textarea>
+      <div class="flex-1 max-w-xl mx-8 hidden lg:block">
+        <div class="relative">
+          <span
+            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
+          <input id="globalSearch"
+            class="w-full bg-slate-800/50 border border-slate-700 rounded-full py-2 pl-10 pr-4 text-sm text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-slate-500"
+            placeholder="Filtrar resultados por cliente, pedido o artículo..." type="text" />
+        </div>
       </div>
+
+      <div class="flex items-center gap-4">
+        <button id="btnPing"
+          class="w-10 h-10 rounded-full hover:bg-slate-800 flex items-center justify-center text-slate-300 transition-colors relative"
+          title="Probar conexión">
+          <span class="material-symbols-outlined text-[24px]">cloud_done</span>
+        </button>
+        <div
+          class="w-9 h-9 rounded-full border-2 border-slate-600 flex items-center justify-center overflow-hidden bg-slate-900">
+          <span class="font-black text-blue-300">L</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 pt-24 pb-32 px-4 md:px-8 max-w-[1600px] mx-auto w-full flex flex-col gap-8 h-full">
+
+      <section id="statusPanel" class="status-panel glass-panel rounded-2xl p-4 items-center gap-3">
+        <span id="statusIcon" class="material-symbols-outlined text-blue-300">info</span>
+        <div>
+          <div id="statusTitle" class="font-bold text-white">Estado</div>
+          <div id="statusText" class="text-sm text-slate-300"></div>
+        </div>
+      </section>
+
+      <section
+        class="glass-panel rounded-3xl p-6 shadow-2xl mx-auto max-w-5xl w-full z-10 transform transition-transform hover:scale-[1.01]">
+        <div class="flex flex-col gap-6">
+          <div>
+            <div class="flex items-center gap-2 text-slate-400 mb-2">
+              <span class="font-bold text-xs uppercase tracking-widest text-blue-400">Escenario Activo</span>
+              <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+              <span id="scenarioLabel" class="font-bold text-xs uppercase tracking-widest">Nuevo Análisis</span>
+            </div>
+            <h1 class="text-4xl font-extrabold text-white tracking-tight mb-6">Simulador de impacto</h1>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700">
+                <label class="small-label">Cliente prioritario</label>
+                <input id="cliente" class="input-dark" placeholder="Ej: CLIENTE VIP" value="TEST VIP" />
+              </div>
+
+              <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700">
+                <label class="small-label">Pedido / Ref</label>
+                <input id="pedido" class="input-dark font-mono" placeholder="Ej: VIP-001" value="VIP-001" />
+              </div>
+
+              <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700">
+                <label class="small-label">Usuario</label>
+                <input id="usuario" class="input-dark" placeholder="Ej: Luis" value="webapp" />
+              </div>
+
+              <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700">
+                <label class="small-label">Prioridad</label>
+                <select id="prioridad" class="input-dark">
+                  <option value="ALTA">ALTA</option>
+                  <option value="MEDIA">MEDIA</option>
+                  <option value="BAJA">BAJA</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mt-4 bg-slate-800/50 rounded-2xl p-4 border border-slate-700">
+              <label class="small-label">Comentario</label>
+              <textarea id="comentario" class="input-dark min-h-[46px]"
+                placeholder="Comentario opcional">Simulación desde webapp</textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="flex-1 flex flex-col gap-4 overflow-hidden">
+        <div class="flex items-center justify-between px-2">
+          <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-blue-400">view_kanban</span>
+            Líneas prioritarias
+            <span id="lineCount"
+              class="bg-slate-800 text-slate-300 font-bold text-[10px] px-2.5 py-1 rounded-full ml-2 border border-slate-700">0
+              Items</span>
+          </h2>
+
+          <button id="btnAddLine"
+            class="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium rounded-full transition-all flex items-center gap-2 backdrop-blur-md">
+            <span class="material-symbols-outlined text-[20px]">add</span>
+            Añadir
+          </button>
+        </div>
+
+        <div id="lineCards" class="flex overflow-x-auto pb-8 pt-4 gap-6 px-2 snap-x snap-mandatory"></div>
+      </section>
+
+      <section id="summarySection" class="hidden grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="glass-panel rounded-3xl p-5">
+          <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Escenario</div>
+          <div id="metricScenario" class="text-white font-black text-lg mt-2 truncate">-</div>
+        </div>
+        <div class="glass-panel rounded-3xl p-5">
+          <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Líneas priorizadas</div>
+          <div id="metricPriorizadas" class="text-white font-black text-3xl mt-2">0</div>
+        </div>
+        <div class="glass-panel rounded-3xl p-5">
+          <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Líneas afectadas</div>
+          <div id="metricLineas" class="text-white font-black text-3xl mt-2">0</div>
+        </div>
+        <div class="glass-panel rounded-3xl p-5">
+          <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Pedidos afectados</div>
+          <div id="metricPedidos" class="text-white font-black text-3xl mt-2">0</div>
+        </div>
+      </section>
+
+      <section id="stockSection" class="hidden glass-panel rounded-3xl p-6">
+        <div class="flex items-center justify-between gap-4 mb-4">
+          <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-blue-400">inventory_2</span>
+            Stock simulado del pedido prioritario
+          </h2>
+        </div>
+        <div id="stockCards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+      </section>
+
+      <section id="lineImpactSection" class="hidden glass-panel rounded-3xl p-6">
+        <div class="flex items-center justify-between gap-4 mb-4">
+          <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-red-400">crisis_alert</span>
+            Impacto por línea / artículo
+          </h2>
+        </div>
+        <div id="lineImpactCards" class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4"></div>
+      </section>
+
+      <section id="orderImpactSection" class="hidden glass-panel rounded-3xl p-6">
+        <div class="flex items-center justify-between gap-4 mb-4">
+          <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+            <span class="material-symbols-outlined text-orange-400">account_tree</span>
+            Impacto por pedido completo
+          </h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm min-w-[1100px]">
+            <thead class="text-slate-400 uppercase text-xs tracking-wider">
+              <tr class="border-b border-slate-700">
+                <th class="py-3 text-left">Prioridad</th>
+                <th class="py-3 text-left">Pedido</th>
+                <th class="py-3 text-left">Cliente</th>
+                <th class="py-3 text-left">Estado base</th>
+                <th class="py-3 text-left">Estado simulado</th>
+                <th class="py-3 text-right">Faltante base</th>
+                <th class="py-3 text-right">Faltante sim.</th>
+                <th class="py-3 text-right">Impacto</th>
+                <th class="py-3 text-left">Severidad</th>
+              </tr>
+            </thead>
+            <tbody id="orderImpactBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div class="fixed bottom-8 right-8 z-50 flex items-center gap-4">
+      <div id="validationBox" class="glass-panel px-4 py-2 rounded-2xl hidden sm:flex flex-col items-end mr-4">
+        <div class="text-sm font-bold text-white flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-emerald-400 text-[18px]">verified</span>
+          Listo
+        </div>
+        <div id="validationText" class="text-xs text-slate-400 mt-1">
+          API conectada
+        </div>
+      </div>
+
+      <button id="btnSimular"
+        class="bg-white text-slate-900 font-extrabold text-xl py-4 px-8 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 fab-glow border-4 border-slate-900">
+        <span class="material-symbols-outlined fill text-[28px]">bolt</span>
+        Simular Impacto
+      </button>
     </div>
-
-    <div class="card">
-      <h2>Líneas prioritarias</h2>
-
-      <div id="lineas"></div>
-
-      <div class="actions">
-        <button class="secondary" onclick="addLinea()">+ Añadir línea</button>
-        <button onclick="simular()" id="btnSimular">Simular impacto</button>
-      </div>
-    </div>
-
-    <div id="resultado"></div>
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxynxAfig1spIHYDKLjSMfSosSxLYTEQPkmy9eKjVBV05KPmHmSCpwbq6Gh1CC51Wlk/exec';
+    const API_URL = "https://script.google.com/macros/s/AKfycbxynxAfig1spIHYDKLjSMfSosSxLYTEQPkmy9eKjVBV05KPmHmSCpwbq6Gh1CC51Wlk/exec";
 
     let lineCounter = 0;
+    let lastData = null;
 
-    document.addEventListener('DOMContentLoaded', () => {
-      addLinea('1003', '50');
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("btnAddLine").addEventListener("click", () => addLine());
+      document.getElementById("btnSimular").addEventListener("click", simulateImpact);
+      document.getElementById("btnPing").addEventListener("click", pingApi);
+      document.getElementById("globalSearch").addEventListener("input", () => {
+        if (lastData) renderResults(lastData);
+      });
+
+      addLine("1003", "50", "INJUSA CORRE");
     });
 
-    function addLinea(idArticulo = '', cantidad = '', descripcion = '') {
+    function addLine(idArticulo = "", cantidad = "", descripcion = "") {
       lineCounter += 1;
 
-      const div = document.createElement('div');
-      div.className = 'line-row';
-      div.dataset.lineId = lineCounter;
+      const card = document.createElement("div");
+      card.className = "flex-shrink-0 w-80 sm:w-96 rounded-3xl p-1 grad-optimal hover-3d snap-center line-card-wrapper";
+      card.dataset.lineId = String(lineCounter);
 
-      div.innerHTML = `
-        <div class="grid-3">
-          <div>
-            <label>ID artículo</label>
-            <input class="id-articulo" placeholder="Ej: 1003" value="${escAttr(idArticulo)}">
+      card.innerHTML = `
+        <div class="bg-slate-900/90 backdrop-blur-xl rounded-[22px] h-full p-6 flex flex-col gap-4 border border-white/10">
+          <div class="flex justify-between items-start gap-3">
+            <span class="font-mono text-sm font-bold bg-white/10 text-white px-2 py-1 rounded-lg line-title">#${esc(idArticulo || "nuevo")}</span>
+            <button class="text-slate-400 hover:text-red-300 transition-colors" onclick="removeLine(${lineCounter})" title="Eliminar línea">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
           </div>
 
           <div>
-            <label>Cantidad</label>
-            <input class="cantidad" type="number" min="1" placeholder="Ej: 50" value="${escAttr(cantidad)}">
+            <label class="small-label">ID artículo</label>
+            <input class="input-dark js-id-articulo font-mono" placeholder="Ej: 1003" value="${escAttr(idArticulo)}" oninput="syncLineCard(this)"/>
           </div>
 
           <div>
-            <label>Descripción opcional</label>
-            <input class="descripcion" placeholder="Opcional" value="${escAttr(descripcion)}">
+            <label class="small-label">Descripción opcional</label>
+            <input class="input-dark js-descripcion" placeholder="Opcional" value="${escAttr(descripcion)}"/>
           </div>
 
-          <div>
-            <button class="danger" onclick="removeLinea(${lineCounter})">Eliminar</button>
+          <div class="flex items-end justify-between mt-auto pt-4 gap-4">
+            <div class="flex flex-col flex-1">
+              <label class="small-label">Cantidad</label>
+              <input class="input-dark js-cantidad text-3xl font-black" type="number" min="1" placeholder="50" value="${escAttr(cantidad)}"/>
+            </div>
+
+            <div class="flex flex-col items-end w-1/2">
+              <span class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Simulación</span>
+              <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                <div class="bg-blue-400 h-2 rounded-full" style="width: 65%"></div>
+              </div>
+            </div>
           </div>
         </div>
       `;
 
-      document.getElementById('lineas').appendChild(div);
+      document.getElementById("lineCards").appendChild(card);
+      updateLineCount();
     }
 
-    function removeLinea(lineId) {
-      const rows = document.querySelectorAll('.line-row');
-
-      if (rows.length <= 1) {
-        showStatus('Debe haber al menos una línea.', 'error');
+    function removeLine(lineId) {
+      const cards = document.querySelectorAll(".line-card-wrapper");
+      if (cards.length <= 1) {
+        showStatus("Debe haber al menos una línea para simular.", "error");
         return;
       }
 
-      const el = document.querySelector(`[data-line-id="${lineId}"]`);
-      if (el) el.remove();
+      const card = document.querySelector(`[data-line-id="${lineId}"]`);
+      if (card) card.remove();
+
+      updateLineCount();
+    }
+
+    function syncLineCard(input) {
+      const wrapper = input.closest(".line-card-wrapper");
+      const title = wrapper.querySelector(".line-title");
+      title.textContent = "#" + (input.value.trim() || "nuevo");
+    }
+
+    function updateLineCount() {
+      const count = document.querySelectorAll(".line-card-wrapper").length;
+      document.getElementById("lineCount").textContent = count + (count === 1 ? " Item" : " Items");
     }
 
     function getPayload() {
-      const cliente = document.getElementById('cliente').value.trim();
-      const pedido = document.getElementById('pedido').value.trim();
-      const usuario = document.getElementById('usuario').value.trim();
-      const prioridad = document.getElementById('prioridad').value;
-      const comentario = document.getElementById('comentario').value.trim();
-
-      const lineas = [...document.querySelectorAll('.line-row')].map(row => {
-        return {
-          id_articulo: row.querySelector('.id-articulo').value.trim(),
-          cantidad: Number(row.querySelector('.cantidad').value || 0),
-          descripcion: row.querySelector('.descripcion').value.trim(),
-        };
-      }).filter(l => l.id_articulo && l.cantidad > 0);
+      const lineas = Array.from(document.querySelectorAll(".line-card-wrapper"))
+        .map(card => ({
+          id_articulo: card.querySelector(".js-id-articulo").value.trim(),
+          descripcion: card.querySelector(".js-descripcion").value.trim(),
+          cantidad: Number(card.querySelector(".js-cantidad").value || 0)
+        }))
+        .filter(linea => linea.id_articulo && linea.cantidad > 0);
 
       return {
-        cliente,
-        pedido,
-        usuario,
-        prioridad,
-        comentario,
-        lineas,
+        cliente: document.getElementById("cliente").value.trim(),
+        pedido: document.getElementById("pedido").value.trim(),
+        usuario: document.getElementById("usuario").value.trim() || "webapp",
+        prioridad: document.getElementById("prioridad").value,
+        comentario: document.getElementById("comentario").value.trim(),
+        lineas
       };
     }
 
-    function simular() {
+    function simulateImpact() {
       const payload = getPayload();
 
       if (!payload.lineas.length) {
-        showStatus('Introduce al menos una línea con ID artículo y cantidad.', 'error');
+        showStatus("Introduce al menos una línea con ID artículo y cantidad.", "error");
         return;
       }
 
-      document.getElementById('btnSimular').disabled = true;
-      document.getElementById('resultado').innerHTML = '';
-      showStatus('Calculando simulación...', 'loading');
+      setLoading(true);
+      showStatus("Calculando impacto contra Atlas sin plan...", "loading");
+      clearResults();
 
       jsonp(API_URL, {
-        action: 'simulate',
-        payload: JSON.stringify(payload),
+        action: "simulate",
+        payload: JSON.stringify(payload)
       }, data => {
-        document.getElementById('btnSimular').disabled = false;
+        setLoading(false);
 
-        if (!data.ok) {
-          showStatus(data.error || 'Error desconocido en la simulación.', 'error');
+        if (!data || !data.ok) {
+          showStatus((data && data.error) ? data.error : "Error desconocido en Apps Script.", "error");
           console.error(data);
           return;
         }
 
-        showStatus('Simulación calculada correctamente.', 'ok');
-        renderResultado(data);
+        lastData = data;
+        showStatus("Simulación calculada correctamente.", "ok");
+        renderResults(data);
       });
     }
 
-    function renderResultado(data) {
-      const pedidos = data.impacto_pedidos || [];
-      const lineas = data.impacto_lineas || [];
-      const resumen = data.resumen || {};
+    function pingApi() {
+      showStatus("Probando conexión con Apps Script...", "loading");
 
-      let html = `
-        <div class="card">
-          <h2>Resumen</h2>
+      jsonp(API_URL, { action: "ping" }, data => {
+        if (data && data.ok) {
+          showStatus("Conexión OK: " + data.message, "ok");
+        } else {
+          showStatus("La API respondió, pero no confirmó OK.", "error");
+        }
+      });
+    }
 
-          <div class="metrics">
-            <div class="metric">
-              <small>Escenario</small>
-              <strong style="font-size:16px;">${esc(data.escenario_id)}</strong>
+    function renderResults(data) {
+      const filter = document.getElementById("globalSearch").value.trim().toUpperCase();
+
+      const pedidosRaw = data.impacto_pedidos || [];
+      const lineasRaw = data.impacto_lineas || [];
+      const stockRaw = data.stock_simulado || [];
+
+      const lineas = filterRows(lineasRaw, filter, ["document_no", "cliente", "id_articulo", "descripcion"]);
+      const pedidos = filterRows(pedidosRaw, filter, ["id_pedido", "cliente", "estado_base", "estado_simulado"]);
+      const stockPriorizado = stockRaw.filter(row => Number(row.cantidad_priorizada || 0) > 0);
+
+      document.getElementById("summarySection").classList.remove("hidden");
+      document.getElementById("metricScenario").textContent = data.escenario_id || "-";
+      document.getElementById("scenarioLabel").textContent = data.escenario_id || "Simulado";
+      document.getElementById("metricPriorizadas").textContent = fmt(data.resumen && data.resumen.total_lineas_priorizadas);
+      document.getElementById("metricLineas").textContent = fmt(lineasRaw.length);
+      document.getElementById("metricPedidos").textContent = fmt(pedidosRaw.length);
+
+      renderStock(stockPriorizado);
+      renderLineImpact(lineas);
+      renderOrderImpact(pedidos);
+
+      document.getElementById("validationText").textContent = "Escenario " + (data.escenario_id || "OK");
+    }
+
+    function renderStock(rows) {
+      const section = document.getElementById("stockSection");
+      const container = document.getElementById("stockCards");
+
+      section.classList.remove("hidden");
+      container.innerHTML = "";
+
+      if (!rows.length) {
+        container.innerHTML = `<div class="text-slate-300">No se ha recibido stock priorizado.</div>`;
+        return;
+      }
+
+      rows.forEach(row => {
+        const original = Number(row.stock_original || 0);
+        const priorizada = Number(row.cantidad_priorizada || 0);
+        const simulado = Number(row.stock_simulado || 0);
+        const pct = original > 0 ? Math.max(0, Math.min(100, (simulado / original) * 100)) : 0;
+        const severe = Number(row.faltante_prioritario || 0) > 0 ? "grad-critical" : priorizada > 0 ? "grad-optimal" : "grad-complete";
+
+        const div = document.createElement("div");
+        div.className = `rounded-3xl p-1 ${severe}`;
+        div.innerHTML = `
+          <div class="bg-slate-900/90 rounded-[22px] p-5 border border-white/10">
+            <div class="flex justify-between items-start gap-3">
+              <div>
+                <div class="font-mono text-sm font-bold bg-white/10 text-white px-2 py-1 rounded-lg inline-block">#${esc(row.id_articulo)}</div>
+                <h3 class="text-white font-bold text-lg mt-3">${esc(row.descripcion)}</h3>
+              </div>
+              <span class="text-xs font-bold uppercase text-slate-300">Stock</span>
+            </div>
+            <div class="grid grid-cols-3 gap-3 mt-5 text-center">
+              <div>
+                <div class="text-slate-400 text-[10px] uppercase font-bold">Original</div>
+                <div class="text-white font-black text-xl">${fmt(original)}</div>
+              </div>
+              <div>
+                <div class="text-slate-400 text-[10px] uppercase font-bold">Priorizado</div>
+                <div class="text-white font-black text-xl">${fmt(priorizada)}</div>
+              </div>
+              <div>
+                <div class="text-slate-400 text-[10px] uppercase font-bold">Simulado</div>
+                <div class="text-white font-black text-xl">${fmt(simulado)}</div>
+              </div>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden mt-5">
+              <div class="bg-blue-400 h-2 rounded-full" style="width: ${pct}%"></div>
+            </div>
+            ${Number(row.faltante_prioritario || 0) > 0 ? `<div class="mt-3 text-red-300 text-sm font-bold">Faltante prioritario: ${fmt(row.faltante_prioritario)}</div>` : ""}
+          </div>
+        `;
+
+        container.appendChild(div);
+      });
+    }
+
+    function renderLineImpact(rows) {
+      const section = document.getElementById("lineImpactSection");
+      const container = document.getElementById("lineImpactCards");
+
+      section.classList.remove("hidden");
+      container.innerHTML = "";
+
+      if (!rows.length) {
+        container.innerHTML = `<div class="text-slate-300">No hay líneas afectadas por este escenario.</div>`;
+        return;
+      }
+
+      rows.forEach(row => {
+        const sev = String(row.severidad || "BAJA").toUpperCase();
+        const grad = sev === "ALTA" || sev === "CRITICA" ? "grad-critical" : sev === "MEDIA" ? "grad-optimal" : "grad-complete";
+
+        const div = document.createElement("div");
+        div.className = `rounded-3xl p-1 ${grad} hover-3d`;
+        div.innerHTML = `
+          <div class="bg-slate-900/90 rounded-[22px] p-5 border border-white/10 h-full">
+            <div class="flex justify-between items-start gap-3">
+              <span class="font-mono text-sm font-bold bg-white/10 text-white px-2 py-1 rounded-lg">#${esc(row.id_articulo)}</span>
+              <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider severity-${sev}">${esc(sev)}</span>
+            </div>
+            <h3 class="text-white font-bold text-xl mt-4 leading-tight">${esc(row.descripcion)}</h3>
+            <div class="text-slate-400 text-sm mt-2">${esc(row.cliente)}</div>
+            <div class="text-slate-300 font-mono text-sm mt-1">${esc(row.document_no)}</div>
+
+            <div class="grid grid-cols-3 gap-3 mt-5">
+              <div class="bg-slate-800/70 rounded-2xl p-3">
+                <div class="text-slate-400 text-[10px] uppercase font-bold">Pendiente</div>
+                <div class="text-white font-black text-lg">${fmt(row.cantidad_pendiente)}</div>
+              </div>
+              <div class="bg-slate-800/70 rounded-2xl p-3">
+                <div class="text-slate-400 text-[10px] uppercase font-bold">Falt. base</div>
+                <div class="text-white font-black text-lg">${fmt(row.cantidad_faltante_base)}</div>
+              </div>
+              <div class="bg-slate-800/70 rounded-2xl p-3">
+                <div class="text-slate-400 text-[10px] uppercase font-bold">Impacto</div>
+                <div class="text-red-300 font-black text-lg">${fmt(row.impacto_linea)}</div>
+              </div>
             </div>
 
-            <div class="metric">
-              <small>Líneas priorizadas</small>
-              <strong>${fmt(resumen.total_lineas_priorizadas)}</strong>
-            </div>
-
-            <div class="metric">
-              <small>Pedidos afectados</small>
-              <strong>${fmt(pedidos.length)}</strong>
-            </div>
-
-            <div class="metric">
-              <small>Líneas afectadas</small>
-              <strong>${fmt(lineas.length)}</strong>
+            <div class="mt-5 text-xs text-slate-400">
+              Stock antes: base <span class="text-white font-bold">${fmt(row.stock_antes_base)}</span> · simulado <span class="text-white font-bold">${fmt(row.stock_antes_simulado)}</span>
             </div>
           </div>
-        </div>
-      `;
+        `;
 
-      html += renderImpactoLineas(lineas);
-      html += renderImpactoPedidos(pedidos);
-
-      document.getElementById('resultado').innerHTML = html;
+        container.appendChild(div);
+      });
     }
 
-    function renderImpactoLineas(lineas) {
-      let html = `
-        <div class="card">
-          <h2>Impacto por línea / artículo</h2>
-      `;
+    function renderOrderImpact(rows) {
+      const section = document.getElementById("orderImpactSection");
+      const body = document.getElementById("orderImpactBody");
 
-      if (!lineas.length) {
-        html += `<p>No hay líneas afectadas por este escenario.</p></div>`;
-        return html;
+      section.classList.remove("hidden");
+      body.innerHTML = "";
+
+      if (!rows.length) {
+        body.innerHTML = `<tr><td colspan="9" class="py-5 text-slate-300">No hay pedidos afectados por este escenario.</td></tr>`;
+        return;
       }
 
-      html += `
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Prioridad</th>
-                <th>Pedido</th>
-                <th>Cliente</th>
-                <th>Artículo</th>
-                <th>Descripción</th>
-                <th>Cant. pendiente</th>
-                <th>Stock antes base</th>
-                <th>Stock antes sim.</th>
-                <th>Faltante base</th>
-                <th>Faltante sim.</th>
-                <th>Impacto</th>
-                <th>Severidad</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
-
-      lineas.forEach(r => {
-        html += `
-          <tr>
-            <td>${fmt(r.prioridad_atlas)}</td>
-            <td>${esc(r.document_no)}</td>
-            <td>${esc(r.cliente)}</td>
-            <td><strong>${esc(r.id_articulo)}</strong></td>
-            <td>${esc(r.descripcion)}</td>
-            <td>${fmt(r.cantidad_pendiente)}</td>
-            <td>${fmt(r.stock_antes_base)}</td>
-            <td>${fmt(r.stock_antes_simulado)}</td>
-            <td>${fmt(r.cantidad_faltante_base)}</td>
-            <td>${fmt(r.cantidad_faltante_simulada)}</td>
-            <td><strong>${fmt(r.impacto_linea)}</strong></td>
-            <td><span class="pill sev-${esc(r.severidad)}">${esc(r.severidad)}</span></td>
-          </tr>
+      rows.forEach(row => {
+        const sev = String(row.severidad || "BAJA").toUpperCase();
+        const tr = document.createElement("tr");
+        tr.className = "border-b border-slate-800 text-slate-200";
+        tr.innerHTML = `
+          <td class="py-3">${fmt(row.prioridad)}</td>
+          <td class="py-3 font-mono text-blue-300">${esc(row.id_pedido)}</td>
+          <td class="py-3">${esc(row.cliente)}</td>
+          <td class="py-3">${esc(row.estado_base)}</td>
+          <td class="py-3">${esc(row.estado_simulado)}</td>
+          <td class="py-3 text-right">${fmt(row.cantidad_faltante_base)}</td>
+          <td class="py-3 text-right">${fmt(row.cantidad_faltante_simulada)}</td>
+          <td class="py-3 text-right font-black text-red-300">${fmt(row.impacto_cantidad_faltante)}</td>
+          <td class="py-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider severity-${sev}">${esc(sev)}</span></td>
         `;
+        body.appendChild(tr);
       });
-
-      html += `
-            </tbody>
-          </table>
-        </div>
-      </div>`;
-
-      return html;
     }
 
-    function renderImpactoPedidos(pedidos) {
-      let html = `
-        <div class="card">
-          <h2>Impacto por pedido completo</h2>
-      `;
-
-      if (!pedidos.length) {
-        html += `<p>No hay pedidos afectados por este escenario.</p></div>`;
-        return html;
-      }
-
-      html += `
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Prioridad</th>
-                <th>Pedido</th>
-                <th>Cliente</th>
-                <th>Fecha envío</th>
-                <th>Estado base</th>
-                <th>Estado simulado</th>
-                <th>Faltante base</th>
-                <th>Faltante simulado</th>
-                <th>Impacto</th>
-                <th>Tipo impacto</th>
-                <th>Severidad</th>
-              </tr>
-            </thead>
-            <tbody>
-      `;
-
-      pedidos.forEach(r => {
-        html += `
-          <tr>
-            <td>${fmt(r.prioridad)}</td>
-            <td>${esc(r.id_pedido)}</td>
-            <td>${esc(r.cliente)}</td>
-            <td>${esc(formatDateLike(r.fecha_envio))}</td>
-            <td>${esc(r.estado_base)}</td>
-            <td>${esc(r.estado_simulado)}</td>
-            <td>${fmt(r.cantidad_faltante_base)}</td>
-            <td>${fmt(r.cantidad_faltante_simulada)}</td>
-            <td><strong>${fmt(r.impacto_cantidad_faltante)}</strong></td>
-            <td>${esc(r.impacto_estado)}</td>
-            <td><span class="pill sev-${esc(r.severidad)}">${esc(r.severidad)}</span></td>
-          </tr>
-        `;
+    function clearResults() {
+      lastData = null;
+      ["summarySection", "stockSection", "lineImpactSection", "orderImpactSection"].forEach(id => {
+        document.getElementById(id).classList.add("hidden");
       });
+    }
 
-      html += `
-            </tbody>
-          </table>
-        </div>
-      </div>`;
+    function filterRows(rows, filter, keys) {
+      if (!filter) return rows;
 
-      return html;
+      return rows.filter(row => keys.some(key => String(row[key] || "").toUpperCase().includes(filter)));
+    }
+
+    function setLoading(isLoading) {
+      const btn = document.getElementById("btnSimular");
+      btn.disabled = isLoading;
+
+      if (isLoading) {
+        btn.classList.add("opacity-60", "cursor-not-allowed");
+        btn.innerHTML = `<span class="material-symbols-outlined fill text-[28px] animate-spin">progress_activity</span> Calculando...`;
+      } else {
+        btn.classList.remove("opacity-60", "cursor-not-allowed");
+        btn.innerHTML = `<span class="material-symbols-outlined fill text-[28px]">bolt</span> Simular Impacto`;
+      }
     }
 
     function jsonp(url, params, callback) {
-      const callbackName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+      const callbackName = "cb_" + Date.now() + "_" + Math.floor(Math.random() * 1000000);
 
-      window[callbackName] = function(data) {
+      window[callbackName] = function (data) {
         delete window[callbackName];
         script.remove();
         callback(data);
@@ -585,56 +703,67 @@
 
       const query = new URLSearchParams({
         ...params,
-        callback: callbackName,
+        callback: callbackName
       });
 
-      const script = document.createElement('script');
-      script.src = url + '?' + query.toString();
+      const script = document.createElement("script");
+      script.src = url + "?" + query.toString();
 
-      script.onerror = function() {
-        document.getElementById('btnSimular').disabled = false;
-        showStatus('Error llamando a Apps Script. Revisa la URL o el despliegue.', 'error');
+      script.onerror = function () {
+        setLoading(false);
+        showStatus("Error llamando a Apps Script. Revisa despliegue y permisos.", "error");
       };
 
       document.body.appendChild(script);
     }
 
-    function showStatus(message, type) {
-      const el = document.getElementById('status');
-      el.className = 'status ' + type;
-      el.textContent = message;
+    function showStatus(message, type = "info") {
+      const panel = document.getElementById("statusPanel");
+      const icon = document.getElementById("statusIcon");
+      const title = document.getElementById("statusTitle");
+      const text = document.getElementById("statusText");
+
+      panel.classList.add("show");
+      text.textContent = message;
+
+      if (type === "ok") {
+        icon.textContent = "check_circle";
+        icon.className = "material-symbols-outlined text-emerald-400";
+        title.textContent = "Correcto";
+      } else if (type === "error") {
+        icon.textContent = "error";
+        icon.className = "material-symbols-outlined text-red-400";
+        title.textContent = "Error";
+      } else if (type === "loading") {
+        icon.textContent = "progress_activity";
+        icon.className = "material-symbols-outlined text-blue-300 animate-spin";
+        title.textContent = "Calculando";
+      } else {
+        icon.textContent = "info";
+        icon.className = "material-symbols-outlined text-blue-300";
+        title.textContent = "Información";
+      }
     }
 
     function fmt(value) {
       const n = Number(value || 0);
-
-      if (!isFinite(n)) return '0';
-
-      return n.toLocaleString('es-ES', {
-        maximumFractionDigits: 2,
-      });
+      if (!Number.isFinite(n)) return "0";
+      return n.toLocaleString("es-ES", { maximumFractionDigits: 2 });
     }
 
     function esc(value) {
-      return String(value ?? '')
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#039;');
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
     }
 
     function escAttr(value) {
-      return esc(value).replaceAll('\n', ' ');
-    }
-
-    function formatDateLike(value) {
-      if (!value) return '';
-
-      if (typeof value === 'string') return value;
-
-      return String(value);
+      return esc(value).replaceAll("\n", " ");
     }
   </script>
 </body>
+
 </html>
