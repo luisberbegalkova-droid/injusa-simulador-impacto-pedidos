@@ -733,6 +733,7 @@
     }
 
     function renderResults(data) {
+      renderFamilySummary(data.resumen_familias || []);
       const filter = document.getElementById("globalSearch").value.trim().toUpperCase();
 
       const pedidosRaw = data.impacto_pedidos || [];
@@ -783,6 +784,7 @@
             <div>
               <div class="text-peach-300/70 text-xs uppercase tracking-[0.18em] mb-2">Familia</div>
               <div class="text-3xl font-bold text-white">${esc(row.referencia_madre)}</div>
+              <div class="text-peach-300/70 text-xs mt-2">Familia = código exacto + variantes con /xxx. Ej: 1901 + 1901/000.</div>
             </div>
             <span class="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] severity-${faltante > 0 ? "ALTA" : "BAJA"}">${esc(estado)}</span>
           </div>
