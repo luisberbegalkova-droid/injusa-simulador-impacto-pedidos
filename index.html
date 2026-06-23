@@ -944,11 +944,46 @@
     }
 
     function clearResults() {
-      lastData = null;
-      ["summarySection", "stockSection", "lineImpactSection", "orderImpactSection"].forEach(id => {
-        document.getElementById(id).classList.add("hidden");
+
+      const idsToHide = [
+
+        "summarySection",
+
+        "familySummarySection",
+
+        "lineImpactSection",
+
+        "orderImpactSection"
+
+      ];
+
+
+      idsToHide.forEach(id => {
+
+        const el = document.getElementById(id);
+
+        if (el) el.classList.add("hidden");
+
       });
+
+
+      const lineBody = document.getElementById("lineImpactBody");
+
+      if (lineBody) lineBody.innerHTML = "";
+
+
+      const orderBody = document.getElementById("orderImpactBody");
+
+      if (orderBody) orderBody.innerHTML = "";
+
+
+      const familyCards = document.getElementById("familySummaryCards");
+
+      if (familyCards) familyCards.innerHTML = "";
+
     }
+
+
 
     function filterRows(rows, filter, keys) {
       if (!filter) return rows;
