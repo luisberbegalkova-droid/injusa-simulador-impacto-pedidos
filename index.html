@@ -317,17 +317,12 @@
               <span id="scenarioLabel" class="font-medium text-[11px] uppercase tracking-[0.2em]">Nuevo Análisis</span>
             </div>
 
-            <h1 class="text-4xl md:text-5xl font-semibold text-white tracking-tight mb-10">Simulador de impacto</h1>
+            <h1 class="text-4xl md:text-5xl font-semibold text-white tracking-tight mb-8">Simulador de impacto</h1>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div class="clay-pill px-5 py-4">
                 <label class="label-caps">Cliente prioritario</label>
                 <input id="cliente" class="input-clay" placeholder="Ej: CLIENTE VIP" value="" />
-              </div>
-
-              <div class="clay-pill px-5 py-4">
-                <label class="label-caps">Pedido / Ref</label>
-                <input id="pedido" class="input-clay font-mono" placeholder="Ej: VIP-001" value="" />
               </div>
 
               <div class="clay-pill px-5 py-4">
@@ -336,19 +331,15 @@
               </div>
 
               <div class="clay-pill px-5 py-4">
-                <label class="label-caps">Prioridad</label>
-                <select id="prioridad" class="input-clay">
-                  <option value="ALTA">ALTA</option>
-                  <option value="MEDIA">MEDIA</option>
-                  <option value="BAJA">BAJA</option>
-                </select>
+                <label class="label-caps">Fecha efecto</label>
+                <input id="fechaDeseada" class="input-clay" type="date" value="" />
               </div>
             </div>
 
-            <div class="clay-pill px-5 py-4 mt-5">
-              <label class="label-caps">Comentario</label>
-              <textarea id="comentario" class="input-clay min-h-[54px]" placeholder="Comentario opcional"></textarea>
-            </div>
+            <p class="mt-4 text-sm text-peach-300/80">
+              La fecha efecto indica desde cuándo quieres que el pedido prioritario consuma stock. Si la dejas vacía, se
+              interpreta como impacto inmediato.
+            </p>
           </div>
         </div>
       </section>
@@ -679,10 +670,11 @@
 
       return {
         cliente: document.getElementById("cliente").value.trim(),
-        pedido: document.getElementById("pedido").value.trim(),
+        pedido: "",
         usuario: document.getElementById("usuario").value.trim() || "webapp",
-        prioridad: document.getElementById("prioridad").value,
-        comentario: document.getElementById("comentario").value.trim(),
+        prioridad: "",
+        fecha_deseada: document.getElementById("fechaDeseada").value,
+        comentario: "",
         lineas
       };
     }
