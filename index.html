@@ -491,6 +491,20 @@
   </div>
 
   <script>
+
+    window.addEventListener("error", function (event) {
+      console.error("ImpactSim error:", event.error || event.message);
+      const status = document.getElementById("statusText");
+      const sub = document.getElementById("statusSubtext");
+      const btn = document.getElementById("simulateBtn");
+      if (status) status.textContent = "Error";
+      if (sub) sub.textContent = event.message || "Se ha producido un error en la webapp.";
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined">bolt</span> Simular Impacto';
+      }
+    });
+
     const API_URL = "https://script.google.com/macros/s/AKfycbxynxAfig1spIHYDKLjSMfSosSxLYTEQPkmy9eKjVBV05KPmHmSCpwbq6Gh1CC51Wlk/exec";
 
     let lineCounter = 0;
@@ -815,118 +829,9 @@
     }
 
     function renderStock(rows) {
-      const section = document.getElementById("stockSection");
-      const container = document.getElementById("stockCards");
-
-      section.classList.remove("hidden");
-      container.innerHTML = "";
-
-      if (!rows.length) {
-        container.innerHTML = `<div class="text-peach-300/80">No se ha recibido stock priorizado.</div>`;
-        return;
-      }
-
-      rows.forEach(row => {
-        const original = Number(row.stock_original || 0);
-        const priorizada = Number(row.cantidad_priorizada || 0);
-        const simulado = Number(row.stock_simulado || 0);
-        const pct = original > 0 ? Math.max(0, Math.min(100, (simulado / original) * 100)) : 0;
-
-        const div = document.createElement("div");
-        div.className = "clay-card p-6 relative overflow-hidden";
-        div.innerHTML = `
-          <div class="absolute -top-10 -right-10 w-40 h-40 bg-coral-500/20 rounded-full blur-2xl"></div>
-          <div class="relative z-10">
-            <div class="font-mono text-sm font-bold clay-pill text-peach-300 px-3 py-1.5 inline-block">#${esc(row.id_articulo)}</div>
-            <h3 class="text-white font-medium text-xl mt-4">${esc(row.descripcion)}</h3>
-            <div class="grid grid-cols-3 gap-3 mt-6 text-center">
-              <div>
-                <div class="text-peach-300/70 text-[10px] uppercase font-bold tracking-[0.15em]">Original</div>
-                <div class="text-white font-semibold text-2xl">${fmt(original)}</div>
-              </div>
-              <div>
-                <div class="text-peach-300/70 text-[10px] uppercase font-bold tracking-[0.15em]">Priorizado</div>
-                <div class="text-white font-semibold text-2xl">${fmt(priorizada)}</div>
-              </div>
-              <div>
-                <div class="text-peach-300/70 text-[10px] uppercase font-bold tracking-[0.15em]">Simulado</div>
-                <div class="text-white font-semibold text-2xl">${fmt(simulado)}</div>
-              </div>
-            </div>
-            <div class="w-full bg-black/20 rounded-full h-3 overflow-hidden p-0.5 shadow-inner mt-6">
-              <div class="bg-[#48cae4] h-full rounded-full shadow-[0_0_10px_rgba(72,202,228,0.8)]" style="width: ${pct}%"></div>
-            </div>
-            ${Number(row.faltante_prioritario || 0) > 0 ? `<div class="mt-4 text-coral-400 text-sm font-bold">Faltante prioritario: ${fmt(row.faltante_prioritario)}</div>` : ""}
-          </div>
-        `;
-
-        container.appendChild(div);
-      });
-    }
-
-    function formatDateES(value) {
-      if (!value) return "";
-
-      if (value instanceof Date && !Number.isNaN(value.getTime())) {
-        return value.toLocaleDateString("es-ES", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric"
-        });
-      }
-
-      const txt = String(value).trim();
-      if (!txt) return "";
-
-      // ISO / Apps Script JSON date: 2026-07-29T22:00:00.000Z
-      const isoMatch = txt.match(/^(\d{4})-(\d{2})-(\d{2})/);
-      if (isoMatch) {
-        return `${isoMatch[3]}/${isoMatch[2]}/${isoMatch[1]}`;
-      }
-
-      // dd/mm/yyyy or dd/mm/yy
-      const slashMatch = txt.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
-      if (slashMatch) {
-        const d = slashMatch[1].padStart(2, "0");
-        const m = slashMatch[2].padStart(2, "0");
-        let y = slashMatch[3];
-        if (y.length === 2) y = "20" + y;
-        return `${d}/${m}/${y}`;
-      }
-
-      return txt;
-    }
-
-    function parseDateForSort(value) {
-      if (!value) return 9999999999999;
-
-      if (value instanceof Date && !Number.isNaN(value.getTime())) {
-        return value.getTime();
-      }
-
-      const txt = String(value).trim();
-      if (!txt) return 9999999999999;
-
-      // ISO / Apps Script JSON date: 2026-07-29T22:00:00.000Z
-      const isoMatch = txt.match(/^(\d{4})-(\d{2})-(\d{2})/);
-      if (isoMatch) {
-        return new Date(Number(isoMatch[1]), Number(isoMatch[2]) - 1, Number(isoMatch[3])).getTime();
-      }
-
-      // dd/mm/yyyy or dd/mm/yy
-      const slashMatch = txt.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
-      if (slashMatch) {
-        const d = Number(slashMatch[1]);
-        const m = Number(slashMatch[2]);
-        let y = Number(slashMatch[3]);
-        if (y < 100) y += 2000;
-        return new Date(y, m - 1, d).getTime();
-      }
-
-      const parsed = new Date(txt);
-      if (!Number.isNaN(parsed.getTime())) return parsed.getTime();
-
-      return 9999999999999;
+      // Bloque Stock simulado oculto.
+      // La función queda como no-op para evitar errores si algún flujo antiguo la llama.
+      return;
     }
 
     function renderLineImpact(rows) {
