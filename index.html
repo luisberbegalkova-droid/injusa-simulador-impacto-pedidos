@@ -428,7 +428,28 @@
           </span>
           Impacto por línea / artículo
         </h2>
-        <div id="lineImpactCards" class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-5"></div>
+
+        <div class="overflow-x-auto rounded-[30px] border border-white/10 bg-black/10">
+          <table class="w-full min-w-[1250px] text-sm">
+            <thead class="text-peach-300/70 uppercase text-[11px] tracking-[0.15em]">
+              <tr class="border-b border-white/10">
+                <th class="py-4 px-4 text-left">Prioridad</th>
+                <th class="py-4 px-4 text-left">Pedido</th>
+                <th class="py-4 px-4 text-left">Cliente</th>
+                <th class="py-4 px-4 text-left">Artículo</th>
+                <th class="py-4 px-4 text-left">Descripción</th>
+                <th class="py-4 px-4 text-right">Pendiente</th>
+                <th class="py-4 px-4 text-right">Stock base</th>
+                <th class="py-4 px-4 text-right">Stock sim.</th>
+                <th class="py-4 px-4 text-right">Faltante base</th>
+                <th class="py-4 px-4 text-right">Faltante sim.</th>
+                <th class="py-4 px-4 text-right">Impacto</th>
+                <th class="py-4 px-4 text-left">Severidad</th>
+              </tr>
+            </thead>
+            <tbody id="lineImpactBody"></tbody>
+          </table>
+        </div>
       </section>
 
       <section id="orderImpactSection" class="hidden clay-panel p-6 md:p-8">
@@ -772,54 +793,35 @@
 
     function renderLineImpact(rows) {
       const section = document.getElementById("lineImpactSection");
-      const container = document.getElementById("lineImpactCards");
+      const body = document.getElementById("lineImpactBody");
 
       section.classList.remove("hidden");
-      container.innerHTML = "";
+      body.innerHTML = "";
 
       if (!rows.length) {
-        container.innerHTML = `<div class="text-peach-300/80">No hay líneas afectadas por este escenario.</div>`;
+        body.innerHTML = `<tr><td colspan="12" class="py-5 px-4 text-peach-300/80">No hay líneas afectadas por este escenario.</td></tr>`;
         return;
       }
 
       rows.forEach(row => {
         const sev = String(row.severidad || "BAJA").toUpperCase();
-
-        const div = document.createElement("div");
-        div.className = "clay-card p-6 relative overflow-hidden";
-        div.innerHTML = `
-          <div class="absolute -top-12 -right-10 w-40 h-40 bg-coral-500/20 rounded-full blur-2xl"></div>
-          <div class="relative z-10">
-            <div class="flex justify-between items-start gap-3">
-              <span class="clay-pill px-4 py-1.5 font-mono text-sm text-peach-300 tracking-wider border-none">#${esc(row.id_articulo)}</span>
-              <span class="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] severity-${sev}">${esc(sev)}</span>
-            </div>
-            <h3 class="text-2xl font-medium text-white leading-tight mt-5">${esc(row.descripcion)}</h3>
-            <div class="text-peach-300/80 text-sm mt-2">${esc(row.cliente)}</div>
-            <div class="text-white/80 font-mono text-sm mt-1">${esc(row.document_no)}</div>
-
-            <div class="grid grid-cols-3 gap-3 mt-6">
-              <div class="bg-black/12 rounded-3xl p-4">
-                <div class="text-peach-300/70 text-[10px] uppercase font-bold tracking-[0.15em]">Pendiente</div>
-                <div class="text-white font-semibold text-2xl">${fmt(row.cantidad_pendiente)}</div>
-              </div>
-              <div class="bg-black/12 rounded-3xl p-4">
-                <div class="text-peach-300/70 text-[10px] uppercase font-bold tracking-[0.15em]">Falt. base</div>
-                <div class="text-white font-semibold text-2xl">${fmt(row.cantidad_faltante_base)}</div>
-              </div>
-              <div class="bg-black/12 rounded-3xl p-4">
-                <div class="text-peach-300/70 text-[10px] uppercase font-bold tracking-[0.15em]">Impacto</div>
-                <div class="text-coral-400 font-semibold text-2xl">${fmt(row.impacto_linea)}</div>
-              </div>
-            </div>
-
-            <div class="mt-5 text-xs text-peach-300/70">
-              Stock antes: base <span class="text-white font-bold">${fmt(row.stock_antes_base)}</span> · simulado <span class="text-white font-bold">${fmt(row.stock_antes_simulado)}</span>
-            </div>
-          </div>
+        const tr = document.createElement("tr");
+        tr.className = "border-b border-white/10 text-slate-100 hover:bg-white/5 transition-colors";
+        tr.innerHTML = `
+          <td class="py-4 px-4">${fmt(row.prioridad_atlas)}</td>
+          <td class="py-4 px-4 font-mono text-[#48cae4]">${esc(row.document_no)}</td>
+          <td class="py-4 px-4">${esc(row.cliente)}</td>
+          <td class="py-4 px-4 font-mono text-peach-300">#${esc(row.id_articulo)}</td>
+          <td class="py-4 px-4">${esc(row.descripcion)}</td>
+          <td class="py-4 px-4 text-right">${fmt(row.cantidad_pendiente)}</td>
+          <td class="py-4 px-4 text-right">${fmt(row.stock_antes_base)}</td>
+          <td class="py-4 px-4 text-right">${fmt(row.stock_antes_simulado)}</td>
+          <td class="py-4 px-4 text-right">${fmt(row.cantidad_faltante_base)}</td>
+          <td class="py-4 px-4 text-right">${fmt(row.cantidad_faltante_simulada)}</td>
+          <td class="py-4 px-4 text-right font-bold text-coral-400">${fmt(row.impacto_linea)}</td>
+          <td class="py-4 px-4"><span class="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] severity-${sev}">${esc(sev)}</span></td>
         `;
-
-        container.appendChild(div);
+        body.appendChild(tr);
       });
     }
 
