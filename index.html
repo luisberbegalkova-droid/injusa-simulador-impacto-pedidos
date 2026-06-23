@@ -494,15 +494,35 @@
 
     window.addEventListener("error", function (event) {
       console.error("ImpactSim error:", event.error || event.message);
-      const status = document.getElementById("statusText");
-      const sub = document.getElementById("statusSubtext");
-      const btn = document.getElementById("simulateBtn");
-      if (status) status.textContent = "Error";
-      if (sub) sub.textContent = event.message || "Se ha producido un error en la webapp.";
-      if (btn) {
-        btn.disabled = false;
-        btn.innerHTML = '<span class="material-symbols-outlined">bolt</span> Simular Impacto';
+      try {
+        setLoading(false);
+        showStatus("Error en la webapp: " + (event.message || "error desconocido"), "error");
+      } catch (e) {
+        const btn = document.getElementById("btnSimular");
+        const title = document.getElementById("statusTitle");
+        const text = document.getElementById("statusText");
+        const icon = document.getElementById("statusIcon");
+        if (btn) {
+          btn.disabled = false;
+          btn.classList.remove("opacity-70", "cursor-not-allowed");
+          btn.innerHTML = '<span class="material-symbols-outlined fill text-[28px]">bolt</span> Simular Impacto';
+        }
+        if (title) title.textContent = "Error";
+        if (text) text.textContent = event.message || "Error desconocido";
+        if (icon) {
+          icon.textContent = "error";
+          icon.className = "material-symbols-outlined accent-coral";
+        }
       }
+    });
+
+    window.addEventListener("unhandledrejection", function (event) {
+      console.error("ImpactSim promise error:", event.reason);
+      try {
+        setLoading(false);
+        const msg = event.reason && event.reason.message ? event.reason.message : String(event.reason || "error desconocido");
+        showStatus("Error en la webapp: " + msg, "error");
+      } catch (e) { }
     });
 
     const API_URL = "https://script.google.com/macros/s/AKfycbxynxAfig1spIHYDKLjSMfSosSxLYTEQPkmy9eKjVBV05KPmHmSCpwbq6Gh1CC51Wlk/exec";
@@ -695,38 +715,45 @@
     }
 
     function simulateImpact() {
-      const payload = getPayload();
+      try {
+        const payload = getPayload();
 
-      if (!payload.lineas.length) {
-        showStatus("Introduce al menos una línea con ID artículo y cantidad.", "error");
-        return;
-      }
-
-      setLoading(true);
-      showStatus("Calculando impacto contra Atlas sin plan...", "loading");
-      clearResults();
-
-      jsonp(API_URL, {
-        action: "simulate",
-        payload: JSON.stringify(payload)
-      }, data => {
-        setLoading(false);
-
-        if (!data || !data.ok) {
-          showStatus((data && data.error) ? data.error : "Error desconocido en Apps Script.", "error");
-          console.error(data);
+        if (!payload.lineas.length) {
+          showStatus("Introduce al menos una línea con ID artículo y cantidad.", "error");
           return;
         }
 
-        lastData = data;
-        try {
-          renderResults(data);
-          showStatus("Simulación calculada correctamente.", "ok");
-        } catch (renderErr) {
-          console.error("Error pintando resultados:", renderErr, data);
-          showStatus("La simulación terminó, pero hubo un error pintando resultados: " + renderErr.message, "error");
-        }
-      });
+        setLoading(true);
+        showStatus("Calculando impacto contra Atlas sin plan...", "loading");
+        clearResults();
+
+        jsonp(API_URL, {
+          action: "simulate",
+          payload: JSON.stringify(payload)
+        }, data => {
+          try {
+            if (!data || !data.ok) {
+              const msg = (data && data.error) ? data.error : "Error desconocido en Apps Script.";
+              showStatus(msg, "error");
+              console.error("Respuesta Apps Script no OK:", data);
+              return;
+            }
+
+            lastData = data;
+            renderResults(data);
+            showStatus("Simulación calculada correctamente.", "ok");
+          } catch (err) {
+            console.error("Error procesando respuesta:", err, data);
+            showStatus("La simulación terminó, pero hubo un error en la web: " + err.message, "error");
+          } finally {
+            setLoading(false);
+          }
+        });
+      } catch (err) {
+        console.error("Error iniciando simulación:", err);
+        setLoading(false);
+        showStatus("Error iniciando simulación: " + err.message, "error");
+      }
     }
 
     function pingApi() {
