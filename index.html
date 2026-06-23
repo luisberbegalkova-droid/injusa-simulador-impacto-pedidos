@@ -166,6 +166,21 @@
       filter: invert(1);
     }
 
+
+    .line-row-input {
+      background-color: rgba(15, 23, 42, 0.85) !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(148, 163, 184, 0.35) !important;
+      border-radius: 12px !important;
+      padding: 10px 12px !important;
+      outline: none !important;
+    }
+
+    .line-row-input:focus {
+      border-color: rgba(96, 165, 250, 0.9) !important;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22) !important;
+    }
+
     .status-panel {
       display: none;
     }
@@ -265,10 +280,10 @@
         </div>
       </section>
 
-      <section class="flex-1 flex flex-col gap-4 overflow-hidden">
-        <div class="flex items-center justify-between px-2">
+      <section class="glass-panel rounded-3xl p-6 w-full">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
           <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-            <span class="material-symbols-outlined text-blue-400">view_kanban</span>
+            <span class="material-symbols-outlined text-blue-400">list_alt</span>
             Líneas prioritarias
             <span id="lineCount"
               class="bg-slate-800 text-slate-300 font-bold text-[10px] px-2.5 py-1 rounded-full ml-2 border border-slate-700">0
@@ -278,11 +293,28 @@
           <button id="btnAddLine"
             class="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium rounded-full transition-all flex items-center gap-2 backdrop-blur-md">
             <span class="material-symbols-outlined text-[20px]">add</span>
-            Añadir
+            Añadir línea
           </button>
         </div>
 
-        <div id="lineCards" class="flex overflow-x-auto pb-8 pt-4 gap-6 px-2 snap-x snap-mandatory"></div>
+        <div class="overflow-x-auto rounded-2xl border border-slate-700 bg-slate-950/35">
+          <table class="w-full min-w-[720px] text-sm">
+            <thead>
+              <tr class="text-slate-400 uppercase text-[11px] tracking-wider border-b border-slate-700">
+                <th class="py-3 px-4 text-left w-16">#</th>
+                <th class="py-3 px-4 text-left">ID artículo</th>
+                <th class="py-3 px-4 text-right w-48">Cantidad</th>
+                <th class="py-3 px-4 text-center w-24">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="lineRows"></tbody>
+          </table>
+        </div>
+
+        <p class="text-slate-400 text-sm mt-4">
+          Introduce solo los artículos y cantidades del pedido prioritario. La descripción se recuperará después desde
+          el resultado de la simulación.
+        </p>
       </section>
 
       <section id="summarySection" class="hidden grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -385,85 +417,68 @@
         if (lastData) renderResults(lastData);
       });
 
-      addLine("", "", "");
+      addLine("", "");
     });
 
-    function addLine(idArticulo = "", cantidad = "", descripcion = "") {
+    function addLine(idArticulo = "", cantidad = "") {
       lineCounter += 1;
 
-      const card = document.createElement("div");
-      card.className = "flex-shrink-0 w-80 sm:w-96 rounded-3xl p-1 grad-optimal hover-3d snap-center line-card-wrapper";
-      card.dataset.lineId = String(lineCounter);
+      const tbody = document.getElementById("lineRows");
+      const tr = document.createElement("tr");
+      tr.className = "line-row border-b border-slate-800 text-slate-200 hover:bg-slate-800/35 transition-colors";
+      tr.dataset.lineId = String(lineCounter);
 
-      card.innerHTML = `
-        <div class="bg-slate-900/90 backdrop-blur-xl rounded-[22px] h-full p-6 flex flex-col gap-4 border border-white/10">
-          <div class="flex justify-between items-start gap-3">
-            <span class="font-mono text-sm font-bold bg-white/10 text-white px-2 py-1 rounded-lg line-title">#${esc(idArticulo || "nuevo")}</span>
-            <button class="text-slate-400 hover:text-red-300 transition-colors" onclick="removeLine(${lineCounter})" title="Eliminar línea">
-              <span class="material-symbols-outlined">delete</span>
-            </button>
-          </div>
-
-          <div>
-            <label class="small-label">ID artículo</label>
-            <input class="input-dark js-id-articulo font-mono" placeholder="Ej: 1003" value="${escAttr(idArticulo)}" oninput="syncLineCard(this)"/>
-          </div>
-
-          <div>
-            <label class="small-label">Descripción opcional</label>
-            <input class="input-dark js-descripcion" placeholder="Opcional" value="${escAttr(descripcion)}"/>
-          </div>
-
-          <div class="flex items-end justify-between mt-auto pt-4 gap-4">
-            <div class="flex flex-col flex-1">
-              <label class="small-label">Cantidad</label>
-              <input class="input-dark js-cantidad text-3xl font-black bg-slate-950 text-white" type="number" min="1" placeholder="Cantidad" value="${escAttr(cantidad)}"/>
-            </div>
-
-            <div class="flex flex-col items-end w-1/2">
-              <span class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Simulación</span>
-              <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                <div class="bg-blue-400 h-2 rounded-full" style="width: 65%"></div>
-              </div>
-            </div>
-          </div>
-        </div>
+      tr.innerHTML = `
+        <td class="py-3 px-4 font-mono text-slate-400 line-index">${lineCounter}</td>
+        <td class="py-3 px-4">
+          <input class="line-row-input js-id-articulo font-mono w-full" placeholder="Ej: 1003" value="${escAttr(idArticulo)}"/>
+        </td>
+        <td class="py-3 px-4 text-right">
+          <input class="line-row-input js-cantidad w-full text-right font-black" type="number" min="1" placeholder="0" value="${escAttr(cantidad)}"/>
+        </td>
+        <td class="py-3 px-4 text-center">
+          <button class="text-slate-400 hover:text-red-300 transition-colors inline-flex items-center justify-center" onclick="removeLine(${lineCounter})" title="Eliminar línea">
+            <span class="material-symbols-outlined">delete</span>
+          </button>
+        </td>
       `;
 
-      document.getElementById("lineCards").appendChild(card);
+      tbody.appendChild(tr);
       updateLineCount();
+      refreshLineIndexes();
     }
 
     function removeLine(lineId) {
-      const cards = document.querySelectorAll(".line-card-wrapper");
-      if (cards.length <= 1) {
+      const rows = document.querySelectorAll(".line-row");
+      if (rows.length <= 1) {
         showStatus("Debe haber al menos una línea para simular.", "error");
         return;
       }
 
-      const card = document.querySelector(`[data-line-id="${lineId}"]`);
-      if (card) card.remove();
+      const row = document.querySelector(`[data-line-id="${lineId}"]`);
+      if (row) row.remove();
 
       updateLineCount();
+      refreshLineIndexes();
     }
 
-    function syncLineCard(input) {
-      const wrapper = input.closest(".line-card-wrapper");
-      const title = wrapper.querySelector(".line-title");
-      title.textContent = "#" + (input.value.trim() || "nuevo");
+    function refreshLineIndexes() {
+      Array.from(document.querySelectorAll(".line-row")).forEach((row, index) => {
+        const cell = row.querySelector(".line-index");
+        if (cell) cell.textContent = String(index + 1);
+      });
     }
 
     function updateLineCount() {
-      const count = document.querySelectorAll(".line-card-wrapper").length;
+      const count = document.querySelectorAll(".line-row").length;
       document.getElementById("lineCount").textContent = count + (count === 1 ? " Item" : " Items");
     }
 
     function getPayload() {
-      const lineas = Array.from(document.querySelectorAll(".line-card-wrapper"))
-        .map(card => ({
-          id_articulo: card.querySelector(".js-id-articulo").value.trim(),
-          descripcion: card.querySelector(".js-descripcion").value.trim(),
-          cantidad: Number(card.querySelector(".js-cantidad").value || 0)
+      const lineas = Array.from(document.querySelectorAll(".line-row"))
+        .map(row => ({
+          id_articulo: row.querySelector(".js-id-articulo").value.trim(),
+          cantidad: Number(row.querySelector(".js-cantidad").value || 0)
         }))
         .filter(linea => linea.id_articulo && linea.cantidad > 0);
 
