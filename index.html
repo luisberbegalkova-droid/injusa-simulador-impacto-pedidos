@@ -426,24 +426,24 @@
           <span class="w-10 h-10 rounded-full bg-coral-500/20 flex items-center justify-center">
             <span class="material-symbols-outlined accent-coral">crisis_alert</span>
           </span>
-          Impacto por línea / artículo
+          Líneas bloqueadas / afectadas
         </h2>
 
         <div class="overflow-x-auto rounded-[30px] border border-white/10 bg-black/10">
-          <table class="w-full min-w-[1250px] text-sm">
+          <table class="w-full min-w-[1350px] text-sm">
             <thead class="text-peach-300/70 uppercase text-[11px] tracking-[0.15em]">
               <tr class="border-b border-white/10">
                 <th class="py-4 px-4 text-left">Prioridad</th>
                 <th class="py-4 px-4 text-left">Pedido</th>
                 <th class="py-4 px-4 text-left">Cliente</th>
                 <th class="py-4 px-4 text-left">Artículo</th>
+                <th class="py-4 px-4 text-left">Fecha envío</th>
                 <th class="py-4 px-4 text-left">Descripción</th>
                 <th class="py-4 px-4 text-right">Pendiente</th>
-                <th class="py-4 px-4 text-right">Stock base</th>
-                <th class="py-4 px-4 text-right">Stock sim.</th>
-                <th class="py-4 px-4 text-right">Faltante base</th>
-                <th class="py-4 px-4 text-right">Faltante sim.</th>
+                <th class="py-4 px-4 text-right">Servible base</th>
+                <th class="py-4 px-4 text-right">Servible sim.</th>
                 <th class="py-4 px-4 text-right">Impacto</th>
+                <th class="py-4 px-4 text-left">Estado</th>
                 <th class="py-4 px-4 text-left">Severidad</th>
               </tr>
             </thead>
@@ -814,12 +814,18 @@
       body.innerHTML = "";
 
       if (!rows.length) {
-        body.innerHTML = `<tr><td colspan="12" class="py-5 px-4 text-peach-300/80">No hay líneas afectadas por este escenario.</td></tr>`;
+        body.innerHTML = `<tr><td colspan="12" class="py-5 px-4 text-peach-300/80">No hay líneas bloqueadas o parcialmente afectadas por este escenario.</td></tr>`;
         return;
       }
 
       rows.forEach(row => {
+        const estado = String(row.estado_operativo || row.estado_linea_simulado || "").toUpperCase();
         const sev = String(row.severidad || "BAJA").toUpperCase();
+
+        const impacto = row.impacto_operativo !== undefined && row.impacto_operativo !== null && row.impacto_operativo !== ""
+          ? row.impacto_operativo
+          : row.impacto_linea;
+
         const tr = document.createElement("tr");
         tr.className = "border-b border-white/10 text-slate-100 hover:bg-white/5 transition-colors";
         tr.innerHTML = `
@@ -827,13 +833,13 @@
           <td class="py-4 px-4 font-mono text-[#48cae4]">${esc(row.document_no)}</td>
           <td class="py-4 px-4">${esc(row.cliente)}</td>
           <td class="py-4 px-4 font-mono text-peach-300">#${esc(row.id_articulo)}</td>
+          <td class="py-4 px-4">${esc(row.shipment_date)}</td>
           <td class="py-4 px-4">${esc(row.descripcion)}</td>
           <td class="py-4 px-4 text-right">${fmt(row.cantidad_pendiente)}</td>
-          <td class="py-4 px-4 text-right">${fmt(row.stock_antes_base)}</td>
-          <td class="py-4 px-4 text-right">${fmt(row.stock_antes_simulado)}</td>
-          <td class="py-4 px-4 text-right">${fmt(row.cantidad_faltante_base)}</td>
-          <td class="py-4 px-4 text-right">${fmt(row.cantidad_faltante_simulada)}</td>
-          <td class="py-4 px-4 text-right font-bold text-coral-400">${fmt(row.impacto_linea)}</td>
+          <td class="py-4 px-4 text-right">${fmt(row.cantidad_servible_base)}</td>
+          <td class="py-4 px-4 text-right">${fmt(row.cantidad_servible_simulada)}</td>
+          <td class="py-4 px-4 text-right font-bold text-coral-400">${fmt(impacto)}</td>
+          <td class="py-4 px-4"><span class="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] severity-${estado === "BLOQUEADO" ? "ALTA" : estado === "PARCIAL" ? "MEDIA" : "BAJA"}">${esc(estado || "-")}</span></td>
           <td class="py-4 px-4"><span class="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] severity-${sev}">${esc(sev)}</span></td>
         `;
         body.appendChild(tr);
