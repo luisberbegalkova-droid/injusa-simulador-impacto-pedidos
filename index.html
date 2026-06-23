@@ -387,8 +387,8 @@
         </div>
 
         <p class="text-peach-300/70 text-sm mt-5">
-          Introduce solo los artículos y cantidades del pedido prioritario. La descripción se recupera desde los
-          resultados de la simulación.
+          Introduce los artículos y cantidades del pedido prioritario. Empieza con una línea y se crea otra
+          automáticamente cuando completas ID artículo y cantidad. Al simular, las líneas vacías se ignoran.
         </p>
       </section>
 
@@ -496,6 +496,12 @@
       addLine("", "");
     });
 
+    function addInitialLines(count) {
+      for (let i = 0; i < count; i++) {
+        addLine("", "");
+      }
+    }
+
     function addLine(idArticulo = "", cantidad = "") {
       lineCounter += 1;
 
@@ -507,10 +513,10 @@
       tr.innerHTML = `
         <td class="py-4 px-5 font-mono text-peach-300/80 line-index">${lineCounter}</td>
         <td class="py-4 px-5">
-          <input class="line-row-input js-id-articulo font-mono w-full" placeholder="Ej: 1003" value="${escAttr(idArticulo)}"/>
+          <input class="line-row-input js-id-articulo font-mono w-full" placeholder="Ej: 1003" value="${escAttr(idArticulo)}" onkeydown="handleLineKey(event, this)" oninput="ensureTrailingEmptyLine()"/>
         </td>
         <td class="py-4 px-5 text-right">
-          <input class="line-row-input js-cantidad w-full text-right font-semibold" type="number" min="1" placeholder="0" value="${escAttr(cantidad)}"/>
+          <input class="line-row-input js-cantidad w-full text-right font-semibold" type="number" min="1" placeholder="0" value="${escAttr(cantidad)}" onkeydown="handleLineKey(event, this)" oninput="ensureTrailingEmptyLine()"/>
         </td>
         <td class="py-4 px-5 text-center">
           <button class="text-peach-300/70 hover:text-coral-400 transition-colors inline-flex items-center justify-center" onclick="removeLine(${lineCounter})" title="Eliminar línea">
@@ -522,6 +528,85 @@
       tbody.appendChild(tr);
       updateLineCount();
       refreshLineIndexes();
+    }
+
+    function isRowFilled(row) {
+      const id = row.querySelector(".js-id-articulo")?.value.trim();
+      const qty = Number(row.querySelector(".js-cantidad")?.value || 0);
+      return Boolean(id) || qty > 0;
+    }
+
+    function isRowComplete(row) {
+      const id = row.querySelector(".js-id-articulo")?.value.trim();
+      const qty = Number(row.querySelector(".js-cantidad")?.value || 0);
+      return Boolean(id) && qty > 0;
+    }
+
+    function ensureTrailingEmptyLine() {
+      const rows = Array.from(document.querySelectorAll(".line-row"));
+      if (!rows.length) {
+        addLine("", "");
+        return;
+      }
+
+      const lastRow = rows[rows.length - 1];
+
+      // Crear una nueva línea solo cuando la última ya tenga artículo y cantidad.
+      if (isRowComplete(lastRow)) {
+        addLine("", "");
+      }
+
+      // Limpiar líneas vacías sobrantes al final, dejando solo una.
+      cleanupExtraEmptyTrailingRows();
+    }
+
+    function cleanupExtraEmptyTrailingRows() {
+      const rows = Array.from(document.querySelectorAll(".line-row"));
+      if (rows.length <= 1) return;
+
+      let emptyTailCount = 0;
+
+      for (let i = rows.length - 1; i >= 0; i--) {
+        if (!isRowFilled(rows[i])) {
+          emptyTailCount += 1;
+          if (emptyTailCount > 1) {
+            rows[i].remove();
+          }
+        } else {
+          break;
+        }
+      }
+
+      updateLineCount();
+      refreshLineIndexes();
+    }
+
+    function handleLineKey(event, input) {
+      const isEnter = event.key === "Enter";
+      const isTab = event.key === "Tab" && !event.shiftKey;
+
+      if (!isEnter && !isTab) return;
+
+      const row = input.closest(".line-row");
+      const isCantidad = input.classList.contains("js-cantidad");
+
+      if (isEnter) {
+        event.preventDefault();
+      }
+
+      if (isCantidad || isEnter) {
+        ensureTrailingEmptyLine();
+
+        const nextRow = row.nextElementSibling;
+        if (nextRow) {
+          const nextInput = nextRow.querySelector(".js-id-articulo");
+          if (nextInput) nextInput.focus();
+        }
+
+        return;
+      }
+
+      // Tab normal desde ID artículo: deja que el navegador pase a cantidad.
     }
 
     function removeLine(lineId) {
