@@ -837,6 +837,38 @@
       return txt;
     }
 
+    function parseDateForSort(value) {
+      if (!value) return 9999999999999;
+
+      if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        return value.getTime();
+      }
+
+      const txt = String(value).trim();
+      if (!txt) return 9999999999999;
+
+      // ISO / Apps Script JSON date: 2026-07-29T22:00:00.000Z
+      const isoMatch = txt.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (isoMatch) {
+        return new Date(Number(isoMatch[1]), Number(isoMatch[2]) - 1, Number(isoMatch[3])).getTime();
+      }
+
+      // dd/mm/yyyy or dd/mm/yy
+      const slashMatch = txt.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+      if (slashMatch) {
+        const d = Number(slashMatch[1]);
+        const m = Number(slashMatch[2]);
+        let y = Number(slashMatch[3]);
+        if (y < 100) y += 2000;
+        return new Date(y, m - 1, d).getTime();
+      }
+
+      const parsed = new Date(txt);
+      if (!Number.isNaN(parsed.getTime())) return parsed.getTime();
+
+      return 9999999999999;
+    }
+
     function renderLineImpact(rows) {
       const section = document.getElementById("lineImpactSection");
       const body = document.getElementById("lineImpactBody");
@@ -849,7 +881,19 @@
         return;
       }
 
-      rows.forEach(row => {
+      const sortedRows = [...rows].sort((a, b) => {
+        const dateA = parseDateForSort(a.shipment_date);
+        const dateB = parseDateForSort(b.shipment_date);
+
+        if (dateA !== dateB) return dateA - dateB;
+
+        const pedidoA = String(a.document_no || "");
+        const pedidoB = String(b.document_no || "");
+
+        return pedidoA.localeCompare(pedidoB);
+      });
+
+      sortedRows.forEach(row => {
         const estado = String(row.estado_operativo || row.estado_linea_simulado || "").toUpperCase();
         const sev = String(row.severidad || "BAJA").toUpperCase();
 
