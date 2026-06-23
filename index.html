@@ -862,6 +862,70 @@
       return;
     }
 
+
+    function formatDateES(value) {
+      if (!value) return "";
+
+      if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        return value.toLocaleDateString("es-ES", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric"
+        });
+      }
+
+      const txt = String(value).trim();
+      if (!txt) return "";
+
+      // ISO / Apps Script JSON date: 2026-07-29T22:00:00.000Z
+      const isoMatch = txt.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (isoMatch) {
+        return `${isoMatch[3]}/${isoMatch[2]}/${isoMatch[1]}`;
+      }
+
+      // dd/mm/yyyy or dd/mm/yy
+      const slashMatch = txt.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+      if (slashMatch) {
+        const d = slashMatch[1].padStart(2, "0");
+        const m = slashMatch[2].padStart(2, "0");
+        let y = slashMatch[3];
+        if (y.length === 2) y = "20" + y;
+        return `${d}/${m}/${y}`;
+      }
+
+      return txt;
+    }
+
+    function parseDateForSort(value) {
+      if (!value) return 9999999999999;
+
+      if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        return value.getTime();
+      }
+
+      const txt = String(value).trim();
+      if (!txt) return 9999999999999;
+
+      const isoMatch = txt.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (isoMatch) {
+        return new Date(Number(isoMatch[1]), Number(isoMatch[2]) - 1, Number(isoMatch[3])).getTime();
+      }
+
+      const slashMatch = txt.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+      if (slashMatch) {
+        const d = Number(slashMatch[1]);
+        const m = Number(slashMatch[2]);
+        let y = Number(slashMatch[3]);
+        if (y < 100) y += 2000;
+        return new Date(y, m - 1, d).getTime();
+      }
+
+      const parsed = new Date(txt);
+      if (!Number.isNaN(parsed.getTime())) return parsed.getTime();
+
+      return 9999999999999;
+    }
+
     function renderLineImpact(rows) {
       const section = document.getElementById("lineImpactSection");
       const body = document.getElementById("lineImpactBody");
