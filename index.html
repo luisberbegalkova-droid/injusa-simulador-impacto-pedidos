@@ -298,7 +298,7 @@
       </div>
     </header>
 
-    <main class="flex-1 max-w-6xl mx-auto w-full flex flex-col gap-10 h-full pb-32">
+    <main class="flex-1 max-w-7xl mx-auto w-full flex flex-col gap-10 h-full pb-32">
 
       <section id="statusPanel" class="status-panel clay-panel p-5 items-center gap-4">
         <span id="statusIcon" class="material-symbols-outlined accent-teal">info</span>
@@ -430,10 +430,9 @@
         </h2>
 
         <div class="overflow-x-auto rounded-[30px] border border-white/10 bg-black/10">
-          <table class="w-full min-w-[1350px] text-sm">
+          <table class="w-full min-w-[1050px] text-sm">
             <thead class="text-peach-300/70 uppercase text-[11px] tracking-[0.15em]">
               <tr class="border-b border-white/10">
-                <th class="py-4 px-4 text-left">Prioridad</th>
                 <th class="py-4 px-4 text-left">Pedido</th>
                 <th class="py-4 px-4 text-left">Cliente</th>
                 <th class="py-4 px-4 text-left">Artículo</th>
@@ -441,7 +440,6 @@
                 <th class="py-4 px-4 text-left">Descripción</th>
                 <th class="py-4 px-4 text-right">Pendiente</th>
                 <th class="py-4 px-4 text-right">Servible base</th>
-                <th class="py-4 px-4 text-right">Servible sim.</th>
                 <th class="py-4 px-4 text-right">Impacto</th>
                 <th class="py-4 px-4 text-left">Estado</th>
                 <th class="py-4 px-4 text-left">Severidad</th>
@@ -806,6 +804,39 @@
       });
     }
 
+    function formatDateES(value) {
+      if (!value) return "";
+
+      if (value instanceof Date && !Number.isNaN(value.getTime())) {
+        return value.toLocaleDateString("es-ES", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric"
+        });
+      }
+
+      const txt = String(value).trim();
+      if (!txt) return "";
+
+      // ISO / Apps Script JSON date: 2026-07-29T22:00:00.000Z
+      const isoMatch = txt.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (isoMatch) {
+        return `${isoMatch[3]}/${isoMatch[2]}/${isoMatch[1]}`;
+      }
+
+      // dd/mm/yyyy or dd/mm/yy
+      const slashMatch = txt.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+      if (slashMatch) {
+        const d = slashMatch[1].padStart(2, "0");
+        const m = slashMatch[2].padStart(2, "0");
+        let y = slashMatch[3];
+        if (y.length === 2) y = "20" + y;
+        return `${d}/${m}/${y}`;
+      }
+
+      return txt;
+    }
+
     function renderLineImpact(rows) {
       const section = document.getElementById("lineImpactSection");
       const body = document.getElementById("lineImpactBody");
@@ -814,7 +845,7 @@
       body.innerHTML = "";
 
       if (!rows.length) {
-        body.innerHTML = `<tr><td colspan="12" class="py-5 px-4 text-peach-300/80">No hay líneas bloqueadas o parcialmente afectadas por este escenario.</td></tr>`;
+        body.innerHTML = `<tr><td colspan="10" class="py-5 px-4 text-peach-300/80">No hay líneas bloqueadas o parcialmente afectadas por este escenario.</td></tr>`;
         return;
       }
 
@@ -829,15 +860,13 @@
         const tr = document.createElement("tr");
         tr.className = "border-b border-white/10 text-slate-100 hover:bg-white/5 transition-colors";
         tr.innerHTML = `
-          <td class="py-4 px-4">${fmt(row.prioridad_atlas)}</td>
           <td class="py-4 px-4 font-mono text-[#48cae4]">${esc(row.document_no)}</td>
           <td class="py-4 px-4">${esc(row.cliente)}</td>
           <td class="py-4 px-4 font-mono text-peach-300">#${esc(row.id_articulo)}</td>
-          <td class="py-4 px-4">${esc(row.shipment_date)}</td>
+          <td class="py-4 px-4">${esc(formatDateES(row.shipment_date))}</td>
           <td class="py-4 px-4">${esc(row.descripcion)}</td>
           <td class="py-4 px-4 text-right">${fmt(row.cantidad_pendiente)}</td>
           <td class="py-4 px-4 text-right">${fmt(row.cantidad_servible_base)}</td>
-          <td class="py-4 px-4 text-right">${fmt(row.cantidad_servible_simulada)}</td>
           <td class="py-4 px-4 text-right font-bold text-coral-400">${fmt(impacto)}</td>
           <td class="py-4 px-4"><span class="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] severity-${estado === "BLOQUEADO" ? "ALTA" : estado === "PARCIAL" ? "MEDIA" : "BAJA"}">${esc(estado || "-")}</span></td>
           <td class="py-4 px-4"><span class="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] severity-${sev}">${esc(sev)}</span></td>
