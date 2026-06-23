@@ -609,25 +609,40 @@
       if (!isEnter && !isTab) return;
 
       const row = input.closest(".line-row");
+      const isIdArticulo = input.classList.contains("js-id-articulo");
       const isCantidad = input.classList.contains("js-cantidad");
 
-      if (isEnter) {
+      // En ID artículo:
+      // - Enter pasa a cantidad de la misma línea.
+      // - Tab mantiene comportamiento normal hacia cantidad.
+      if (isIdArticulo && isEnter) {
         event.preventDefault();
+        const qtyInput = row.querySelector(".js-cantidad");
+        if (qtyInput) qtyInput.focus();
+        return;
       }
 
-      if (isCantidad || isEnter) {
+      if (isIdArticulo && isTab) {
+        return;
+      }
+
+      // En cantidad:
+      // - Enter o Tab pasan directamente al ID artículo de la siguiente línea.
+      if (isCantidad && (isEnter || isTab)) {
+        event.preventDefault();
         ensureTrailingEmptyLine();
 
         const nextRow = row.nextElementSibling;
         if (nextRow) {
           const nextInput = nextRow.querySelector(".js-id-articulo");
-          if (nextInput) nextInput.focus();
+          if (nextInput) {
+            nextInput.focus();
+            nextInput.select();
+          }
         }
 
         return;
       }
-
-      // Tab normal desde ID artículo: deja que el navegador pase a cantidad.
     }
 
     function removeLine(lineId) {
