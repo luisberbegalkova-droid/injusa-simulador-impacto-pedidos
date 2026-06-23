@@ -10,7 +10,8 @@
     rel="stylesheet" />
   <link href="https://fonts.googleapis.com" rel="preconnect" />
   <link crossorigin href="https://fonts.gstatic.com" rel="preconnect" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap"
     rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
@@ -19,11 +20,23 @@
       darkMode: "class",
       theme: {
         extend: {
-          fontFamily: {
-            inter: ["Inter", "sans-serif"]
-          },
           colors: {
-            slateGlass: "rgba(30, 41, 59, 0.6)"
+            teal: {
+              800: "#114b53",
+              900: "#0b3137"
+            },
+            coral: {
+              400: "#ff8a75",
+              500: "#ff6b52"
+            },
+            peach: {
+              300: "#ffb5a7",
+              400: "#ff9e8f"
+            }
+          },
+          fontFamily: {
+            sans: ["Outfit", "Inter", "sans-serif"],
+            mono: ["Inter", "monospace"]
           }
         }
       }
@@ -32,19 +45,66 @@
 
   <style>
     body {
-      background-color: #0f172a;
-      background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 100%);
-      background-attachment: fixed;
+      background-color: #0b3137;
       color: #f8fafc;
-      font-family: Inter, sans-serif;
+      overflow-x: hidden;
+      font-family: "Outfit", sans-serif;
+    }
+
+    .bg-blob {
+      position: fixed;
+      filter: blur(80px);
+      opacity: 0.6;
+      z-index: -1;
+      animation: float 20s infinite ease-in-out alternate;
+      pointer-events: none;
+    }
+
+    .blob-1 {
+      top: -10%;
+      left: -10%;
+      width: 50vw;
+      height: 50vw;
+      background: radial-gradient(circle, rgba(255, 107, 82, 0.8) 0%, rgba(255, 107, 82, 0) 70%);
+    }
+
+    .blob-2 {
+      bottom: -20%;
+      right: -10%;
+      width: 60vw;
+      height: 60vw;
+      background: radial-gradient(circle, rgba(255, 181, 167, 0.6) 0%, rgba(255, 181, 167, 0) 70%);
+    }
+
+    .blob-3 {
+      top: 40%;
+      left: 30%;
+      width: 40vw;
+      height: 40vw;
+      background: radial-gradient(circle, rgba(17, 75, 83, 0.9) 0%, rgba(17, 75, 83, 0) 70%);
+      animation-delay: -5s;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      50% {
+        transform: translate(5%, 5%) scale(1.1);
+      }
+
+      100% {
+        transform: translate(-5%, -5%) scale(0.9);
+      }
     }
 
     .material-symbols-outlined {
-      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
     }
 
     .material-symbols-outlined.fill {
-      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+      font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
     }
 
     ::-webkit-scrollbar {
@@ -52,133 +112,114 @@
       height: 0;
     }
 
-    .glass-panel {
-      background: rgba(30, 41, 59, 0.6);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+    .clay-panel {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 40px;
+      box-shadow:
+        12px 12px 24px rgba(0, 0, 0, 0.15),
+        -8px -8px 24px rgba(255, 255, 255, 0.05),
+        inset 2px 2px 10px rgba(255, 255, 255, 0.15),
+        inset -2px -2px 10px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .clay-pill {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(10px);
+      border-radius: 9999px;
+      box-shadow:
+        6px 6px 12px rgba(0, 0, 0, 0.1),
+        -4px -4px 12px rgba(255, 255, 255, 0.05),
+        inset 1px 1px 6px rgba(255, 255, 255, 0.15);
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .hover-3d {
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-      transform-style: preserve-3d;
+    .clay-card {
+      border-radius: 34px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(15px);
+      box-shadow:
+        10px 10px 20px rgba(0, 0, 0, 0.15),
+        -5px -5px 15px rgba(255, 255, 255, 0.05),
+        inset 2px 2px 8px rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
 
-    .hover-3d:hover {
-      transform: translateY(-8px) scale(1.02) rotateX(2deg);
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 255, 255, 0.1);
+    .clay-card:hover {
+      transform: translateY(-3px);
+      box-shadow:
+        14px 14px 26px rgba(0, 0, 0, 0.18),
+        -6px -6px 18px rgba(255, 255, 255, 0.06),
+        inset 2px 2px 8px rgba(255, 255, 255, 0.2);
     }
 
-    .grad-critical {
-      background: linear-gradient(135deg, #f43f5e 0%, #ea580c 100%);
+    .accent-coral {
+      color: #ff6b52;
     }
 
-    .grad-optimal {
-      background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+    .accent-peach {
+      color: #ffb5a7;
     }
 
-    .grad-complete {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    .accent-teal {
+      color: #48cae4;
     }
 
-    @keyframes pulse-glow {
-      0% {
-        box-shadow: 0 0 0 0 rgba(248, 250, 252, 0.7);
-      }
-
-      70% {
-        box-shadow: 0 0 0 20px rgba(248, 250, 252, 0);
-      }
-
-      100% {
-        box-shadow: 0 0 0 0 rgba(248, 250, 252, 0);
-      }
-    }
-
-    .fab-glow {
-      animation: pulse-glow 2s infinite;
-    }
-
-    .input-dark {
+    .input-clay {
       width: 100%;
-      background: rgba(15, 23, 42, 0.75);
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      border-radius: 14px;
-      color: white;
-      padding: 11px 13px;
-      outline: none;
+      background: rgba(255, 255, 255, 0.08) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      border-radius: 22px !important;
+      color: #ffffff !important;
+      padding: 12px 16px !important;
+      outline: none !important;
+      box-shadow:
+        inset 2px 2px 8px rgba(0, 0, 0, 0.16),
+        inset -2px -2px 8px rgba(255, 255, 255, 0.05);
       transition: all .2s ease;
     }
 
-    .input-dark:focus {
-      border-color: rgba(96, 165, 250, 0.9);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22);
+    .input-clay:focus {
+      border-color: rgba(255, 107, 82, 0.75) !important;
+      box-shadow:
+        0 0 0 3px rgba(255, 107, 82, 0.18),
+        inset 2px 2px 8px rgba(0, 0, 0, 0.16),
+        inset -2px -2px 8px rgba(255, 255, 255, 0.05);
     }
 
-    .input-dark::placeholder {
-      color: rgba(148, 163, 184, .7);
+    .input-clay::placeholder {
+      color: rgba(255, 181, 167, .52);
     }
 
-    .small-label {
+    .label-caps {
       display: block;
-      color: #94a3b8;
-      font-size: 11px;
+      color: rgba(255, 181, 167, .72);
+      font-size: 10px;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: .08em;
-      margin-bottom: 7px;
+      letter-spacing: .15em;
+      margin-bottom: 8px;
     }
-
-    .severity-CRITICA,
-    .severity-ALTA {
-      background: rgba(239, 68, 68, .18);
-      color: #fca5a5;
-      border: 1px solid rgba(239, 68, 68, .35);
-    }
-
-    .severity-MEDIA {
-      background: rgba(245, 158, 11, .18);
-      color: #fcd34d;
-      border: 1px solid rgba(245, 158, 11, .35);
-    }
-
-    .severity-BAJA {
-      background: rgba(16, 185, 129, .18);
-      color: #86efac;
-      border: 1px solid rgba(16, 185, 129, .35);
-    }
-
-
-    .js-cantidad {
-      background-color: rgba(15, 23, 42, 0.85) !important;
-      color: #ffffff !important;
-      border-color: rgba(96, 165, 250, 0.45) !important;
-    }
-
-    .js-cantidad:focus {
-      background-color: rgba(15, 23, 42, 0.95) !important;
-      color: #ffffff !important;
-    }
-
-    .js-cantidad::-webkit-outer-spin-button,
-    .js-cantidad::-webkit-inner-spin-button {
-      opacity: 1;
-      filter: invert(1);
-    }
-
 
     .line-row-input {
-      background-color: rgba(15, 23, 42, 0.85) !important;
+      background: rgba(255, 255, 255, 0.08) !important;
       color: #ffffff !important;
-      border: 1px solid rgba(148, 163, 184, 0.35) !important;
-      border-radius: 12px !important;
-      padding: 10px 12px !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      border-radius: 18px !important;
+      padding: 11px 14px !important;
       outline: none !important;
+      box-shadow:
+        inset 2px 2px 8px rgba(0, 0, 0, 0.16),
+        inset -2px -2px 8px rgba(255, 255, 255, 0.05);
     }
 
     .line-row-input:focus {
-      border-color: rgba(96, 165, 250, 0.9) !important;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.22) !important;
+      border-color: rgba(72, 202, 228, 0.85) !important;
+      box-shadow: 0 0 0 3px rgba(72, 202, 228, 0.16) !important;
     }
 
     .status-panel {
@@ -188,16 +229,48 @@
     .status-panel.show {
       display: flex;
     }
+
+    .severity-CRITICA,
+    .severity-ALTA {
+      background: rgba(255, 107, 82, .18);
+      color: #ffb5a7;
+      border: 1px solid rgba(255, 107, 82, .35);
+    }
+
+    .severity-MEDIA {
+      background: rgba(72, 202, 228, .18);
+      color: #7dd3fc;
+      border: 1px solid rgba(72, 202, 228, .35);
+    }
+
+    .severity-BAJA {
+      background: rgba(255, 181, 167, .16);
+      color: #ffd4ca;
+      border: 1px solid rgba(255, 181, 167, .32);
+    }
+
+    @media (max-width: 768px) {
+      .clay-panel {
+        border-radius: 28px;
+      }
+    }
   </style>
 </head>
 
-<body class="min-h-screen antialiased">
-  <div class="flex-1 flex flex-col min-w-0 relative">
+<body class="min-h-screen antialiased selection:bg-coral-500/30">
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+  <div class="bg-blob blob-3"></div>
 
-    <header class="glass-panel flex justify-between items-center px-6 h-16 w-full fixed top-0 z-50">
+  <div class="flex-1 flex flex-col min-w-0 relative z-10 p-4 md:p-8">
+    <header
+      class="clay-pill flex justify-between items-center px-6 h-16 w-full max-w-7xl mx-auto mb-8 sticky top-4 z-50">
       <div class="flex items-center gap-4">
-        <div class="text-xl font-bold text-white flex items-center gap-2 tracking-tight">
-          <span class="material-symbols-outlined text-blue-400" style="font-size: 28px;">analytics</span>
+        <div class="text-xl font-semibold text-white flex items-center gap-3 tracking-wide">
+          <div
+            class="w-8 h-8 rounded-full bg-gradient-to-tr from-coral-500 to-peach-300 flex items-center justify-center shadow-lg">
+            <span class="material-symbols-outlined text-white text-[18px]">analytics</span>
+          </div>
           ImpactSim Pro
         </div>
       </div>
@@ -205,66 +278,66 @@
       <div class="flex-1 max-w-xl mx-8 hidden lg:block">
         <div class="relative">
           <span
-            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
+            class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-peach-300 text-[18px]">search</span>
           <input id="globalSearch"
-            class="w-full bg-slate-800/50 border border-slate-700 rounded-full py-2 pl-10 pr-4 text-sm text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-slate-500"
+            class="w-full bg-white/5 border-none rounded-full py-2.5 pl-12 pr-4 text-sm text-slate-200 focus:ring-2 focus:ring-coral-400/50 transition-all placeholder:text-peach-300/50"
             placeholder="Filtrar resultados por cliente, pedido o artículo..." type="text" />
         </div>
       </div>
 
       <div class="flex items-center gap-4">
         <button id="btnPing"
-          class="w-10 h-10 rounded-full hover:bg-slate-800 flex items-center justify-center text-slate-300 transition-colors relative"
+          class="w-10 h-10 rounded-full hover:bg-white/10 flex items-center justify-center text-peach-300 transition-colors relative"
           title="Probar conexión">
-          <span class="material-symbols-outlined text-[24px]">cloud_done</span>
+          <span class="material-symbols-outlined text-[22px]">cloud_done</span>
         </button>
         <div
-          class="w-9 h-9 rounded-full border-2 border-slate-600 flex items-center justify-center overflow-hidden bg-slate-900">
-          <span class="font-black text-blue-300">L</span>
+          class="w-10 h-10 rounded-full border-2 border-peach-300/30 flex items-center justify-center overflow-hidden shadow-inner text-white font-bold">
+          L
         </div>
       </div>
     </header>
 
-    <main class="flex-1 pt-24 pb-32 px-4 md:px-8 max-w-6xl mx-auto w-full flex flex-col gap-8 h-full">
+    <main class="flex-1 max-w-6xl mx-auto w-full flex flex-col gap-10 h-full pb-32">
 
-      <section id="statusPanel" class="status-panel glass-panel rounded-2xl p-4 items-center gap-3">
-        <span id="statusIcon" class="material-symbols-outlined text-blue-300">info</span>
+      <section id="statusPanel" class="status-panel clay-panel p-5 items-center gap-4">
+        <span id="statusIcon" class="material-symbols-outlined accent-teal">info</span>
         <div>
           <div id="statusTitle" class="font-bold text-white">Estado</div>
-          <div id="statusText" class="text-sm text-slate-300"></div>
+          <div id="statusText" class="text-sm text-peach-300/80"></div>
         </div>
       </section>
 
-      <section
-        class="glass-panel rounded-3xl p-6 shadow-2xl w-full z-10 transform transition-transform hover:scale-[1.01]">
-        <div class="flex flex-col gap-6">
+      <section class="clay-panel p-8 md:p-10 w-full">
+        <div class="flex flex-col gap-8">
           <div>
-            <div class="flex items-center gap-2 text-slate-400 mb-2">
-              <span class="font-bold text-xs uppercase tracking-widest text-blue-400">Escenario Activo</span>
-              <span class="material-symbols-outlined text-[14px]">chevron_right</span>
-              <span id="scenarioLabel" class="font-bold text-xs uppercase tracking-widest">Nuevo Análisis</span>
+            <div class="flex items-center gap-3 text-peach-300 mb-6">
+              <span class="font-bold text-[11px] uppercase tracking-[0.2em] text-coral-400">Escenario Activo</span>
+              <span class="material-symbols-outlined text-[16px] opacity-50">arrow_right_alt</span>
+              <span id="scenarioLabel" class="font-medium text-[11px] uppercase tracking-[0.2em]">Nuevo Análisis</span>
             </div>
-            <h1 class="text-4xl font-extrabold text-white tracking-tight mb-6">Simulador de impacto</h1>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700">
-                <label class="small-label">Cliente prioritario</label>
-                <input id="cliente" class="input-dark" placeholder="Ej: CLIENTE VIP" value="" />
+            <h1 class="text-4xl md:text-5xl font-semibold text-white tracking-tight mb-10">Simulador de impacto</h1>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
+              <div class="clay-pill px-5 py-4">
+                <label class="label-caps">Cliente prioritario</label>
+                <input id="cliente" class="input-clay" placeholder="Ej: CLIENTE VIP" value="" />
               </div>
 
-              <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700">
-                <label class="small-label">Pedido / Ref</label>
-                <input id="pedido" class="input-dark font-mono" placeholder="Ej: VIP-001" value="" />
+              <div class="clay-pill px-5 py-4">
+                <label class="label-caps">Pedido / Ref</label>
+                <input id="pedido" class="input-clay font-mono" placeholder="Ej: VIP-001" value="" />
               </div>
 
-              <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700">
-                <label class="small-label">Usuario</label>
-                <input id="usuario" class="input-dark" placeholder="Ej: Luis" value="webapp" />
+              <div class="clay-pill px-5 py-4">
+                <label class="label-caps">Usuario</label>
+                <input id="usuario" class="input-clay" placeholder="Ej: Luis" value="webapp" />
               </div>
 
-              <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700">
-                <label class="small-label">Prioridad</label>
-                <select id="prioridad" class="input-dark">
+              <div class="clay-pill px-5 py-4">
+                <label class="label-caps">Prioridad</label>
+                <select id="prioridad" class="input-clay">
                   <option value="ALTA">ALTA</option>
                   <option value="MEDIA">MEDIA</option>
                   <option value="BAJA">BAJA</option>
@@ -272,110 +345,112 @@
               </div>
             </div>
 
-            <div class="mt-4 bg-slate-800/50 rounded-2xl p-4 border border-slate-700">
-              <label class="small-label">Comentario</label>
-              <textarea id="comentario" class="input-dark min-h-[46px]" placeholder="Comentario opcional"></textarea>
+            <div class="clay-pill px-5 py-4 mt-5">
+              <label class="label-caps">Comentario</label>
+              <textarea id="comentario" class="input-clay min-h-[54px]" placeholder="Comentario opcional"></textarea>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="glass-panel rounded-3xl p-6 w-full">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
-          <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-            <span class="material-symbols-outlined text-blue-400">list_alt</span>
+      <section class="clay-panel p-6 md:p-8 w-full">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-6">
+          <h2 class="text-2xl md:text-3xl font-semibold text-white flex items-center gap-4">
+            <span class="w-10 h-10 rounded-full bg-peach-300/20 flex items-center justify-center">
+              <span class="material-symbols-outlined accent-peach">list_alt</span>
+            </span>
             Líneas prioritarias
             <span id="lineCount"
-              class="bg-slate-800 text-slate-300 font-bold text-[10px] px-2.5 py-1 rounded-full ml-2 border border-slate-700">0
+              class="clay-pill text-peach-300 font-bold text-[11px] px-4 py-1.5 ml-1 tracking-widest uppercase border-none">0
               Items</span>
           </h2>
 
           <button id="btnAddLine"
-            class="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium rounded-full transition-all flex items-center gap-2 backdrop-blur-md">
+            class="clay-pill px-6 py-2.5 hover:bg-white/10 text-white font-medium text-sm transition-all flex items-center gap-2">
             <span class="material-symbols-outlined text-[20px]">add</span>
             Añadir línea
           </button>
         </div>
 
-        <div class="overflow-x-auto rounded-2xl border border-slate-700 bg-slate-950/35">
+        <div class="overflow-x-auto rounded-[30px] border border-white/10 bg-black/10">
           <table class="w-full min-w-[720px] text-sm">
             <thead>
-              <tr class="text-slate-400 uppercase text-[11px] tracking-wider border-b border-slate-700">
-                <th class="py-3 px-4 text-left w-16">#</th>
-                <th class="py-3 px-4 text-left">ID artículo</th>
-                <th class="py-3 px-4 text-right w-48">Cantidad</th>
-                <th class="py-3 px-4 text-center w-24">Acción</th>
+              <tr class="text-peach-300/70 uppercase text-[11px] tracking-[0.15em] border-b border-white/10">
+                <th class="py-4 px-5 text-left w-16">#</th>
+                <th class="py-4 px-5 text-left">ID artículo</th>
+                <th class="py-4 px-5 text-right w-52">Cantidad</th>
+                <th class="py-4 px-5 text-center w-24">Acción</th>
               </tr>
             </thead>
             <tbody id="lineRows"></tbody>
           </table>
         </div>
 
-        <p class="text-slate-400 text-sm mt-4">
-          Introduce solo los artículos y cantidades del pedido prioritario. La descripción se recuperará después desde
-          el resultado de la simulación.
+        <p class="text-peach-300/70 text-sm mt-5">
+          Introduce solo los artículos y cantidades del pedido prioritario. La descripción se recupera desde los
+          resultados de la simulación.
         </p>
       </section>
 
-      <section id="summarySection" class="hidden grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="glass-panel rounded-3xl p-5">
-          <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Escenario</div>
-          <div id="metricScenario" class="text-white font-black text-lg mt-2 truncate">-</div>
+      <section id="summarySection" class="hidden grid grid-cols-1 md:grid-cols-4 gap-5">
+        <div class="clay-card p-5">
+          <div class="text-peach-300/70 text-[10px] font-bold uppercase tracking-[0.15em]">Escenario</div>
+          <div id="metricScenario" class="text-white font-semibold text-lg mt-2 truncate">-</div>
         </div>
-        <div class="glass-panel rounded-3xl p-5">
-          <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Líneas priorizadas</div>
-          <div id="metricPriorizadas" class="text-white font-black text-3xl mt-2">0</div>
+        <div class="clay-card p-5">
+          <div class="text-peach-300/70 text-[10px] font-bold uppercase tracking-[0.15em]">Líneas priorizadas</div>
+          <div id="metricPriorizadas" class="text-white font-semibold text-4xl mt-2">0</div>
         </div>
-        <div class="glass-panel rounded-3xl p-5">
-          <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Líneas afectadas</div>
-          <div id="metricLineas" class="text-white font-black text-3xl mt-2">0</div>
+        <div class="clay-card p-5">
+          <div class="text-peach-300/70 text-[10px] font-bold uppercase tracking-[0.15em]">Líneas afectadas</div>
+          <div id="metricLineas" class="text-white font-semibold text-4xl mt-2">0</div>
         </div>
-        <div class="glass-panel rounded-3xl p-5">
-          <div class="text-slate-400 text-xs font-bold uppercase tracking-wider">Pedidos afectados</div>
-          <div id="metricPedidos" class="text-white font-black text-3xl mt-2">0</div>
+        <div class="clay-card p-5">
+          <div class="text-peach-300/70 text-[10px] font-bold uppercase tracking-[0.15em]">Pedidos afectados</div>
+          <div id="metricPedidos" class="text-white font-semibold text-4xl mt-2">0</div>
         </div>
       </section>
 
-      <section id="stockSection" class="hidden glass-panel rounded-3xl p-6">
-        <div class="flex items-center justify-between gap-4 mb-4">
-          <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-            <span class="material-symbols-outlined text-blue-400">inventory_2</span>
-            Stock simulado del pedido prioritario
-          </h2>
-        </div>
-        <div id="stockCards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+      <section id="stockSection" class="hidden clay-panel p-6 md:p-8">
+        <h2 class="text-2xl md:text-3xl font-semibold text-white flex items-center gap-4 mb-6">
+          <span class="w-10 h-10 rounded-full bg-[#48cae4]/20 flex items-center justify-center">
+            <span class="material-symbols-outlined accent-teal">inventory_2</span>
+          </span>
+          Stock simulado
+        </h2>
+        <div id="stockCards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
       </section>
 
-      <section id="lineImpactSection" class="hidden glass-panel rounded-3xl p-6">
-        <div class="flex items-center justify-between gap-4 mb-4">
-          <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-            <span class="material-symbols-outlined text-red-400">crisis_alert</span>
-            Impacto por línea / artículo
-          </h2>
-        </div>
-        <div id="lineImpactCards" class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4"></div>
+      <section id="lineImpactSection" class="hidden clay-panel p-6 md:p-8">
+        <h2 class="text-2xl md:text-3xl font-semibold text-white flex items-center gap-4 mb-6">
+          <span class="w-10 h-10 rounded-full bg-coral-500/20 flex items-center justify-center">
+            <span class="material-symbols-outlined accent-coral">crisis_alert</span>
+          </span>
+          Impacto por línea / artículo
+        </h2>
+        <div id="lineImpactCards" class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-5"></div>
       </section>
 
-      <section id="orderImpactSection" class="hidden glass-panel rounded-3xl p-6">
-        <div class="flex items-center justify-between gap-4 mb-4">
-          <h2 class="text-2xl font-bold text-white flex items-center gap-2">
-            <span class="material-symbols-outlined text-orange-400">account_tree</span>
-            Impacto por pedido completo
-          </h2>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm min-w-[1100px]">
-            <thead class="text-slate-400 uppercase text-xs tracking-wider">
-              <tr class="border-b border-slate-700">
-                <th class="py-3 text-left">Prioridad</th>
-                <th class="py-3 text-left">Pedido</th>
-                <th class="py-3 text-left">Cliente</th>
-                <th class="py-3 text-left">Estado base</th>
-                <th class="py-3 text-left">Estado simulado</th>
-                <th class="py-3 text-right">Faltante base</th>
-                <th class="py-3 text-right">Faltante sim.</th>
-                <th class="py-3 text-right">Impacto</th>
-                <th class="py-3 text-left">Severidad</th>
+      <section id="orderImpactSection" class="hidden clay-panel p-6 md:p-8">
+        <h2 class="text-2xl md:text-3xl font-semibold text-white flex items-center gap-4 mb-6">
+          <span class="w-10 h-10 rounded-full bg-peach-300/20 flex items-center justify-center">
+            <span class="material-symbols-outlined accent-peach">account_tree</span>
+          </span>
+          Impacto por pedido completo
+        </h2>
+        <div class="overflow-x-auto rounded-[30px] border border-white/10 bg-black/10">
+          <table class="w-full min-w-[1100px] text-sm">
+            <thead class="text-peach-300/70 uppercase text-[11px] tracking-[0.15em]">
+              <tr class="border-b border-white/10">
+                <th class="py-4 px-4 text-left">Prioridad</th>
+                <th class="py-4 px-4 text-left">Pedido</th>
+                <th class="py-4 px-4 text-left">Cliente</th>
+                <th class="py-4 px-4 text-left">Estado base</th>
+                <th class="py-4 px-4 text-left">Estado simulado</th>
+                <th class="py-4 px-4 text-right">Faltante base</th>
+                <th class="py-4 px-4 text-right">Faltante sim.</th>
+                <th class="py-4 px-4 text-right">Impacto</th>
+                <th class="py-4 px-4 text-left">Severidad</th>
               </tr>
             </thead>
             <tbody id="orderImpactBody"></tbody>
@@ -384,19 +459,20 @@
       </section>
     </main>
 
-    <div class="fixed bottom-8 right-8 z-50 flex items-center gap-4">
-      <div id="validationBox" class="glass-panel px-4 py-2 rounded-2xl hidden sm:flex flex-col items-end mr-4">
-        <div class="text-sm font-bold text-white flex items-center gap-1.5">
-          <span class="material-symbols-outlined text-emerald-400 text-[18px]">verified</span>
+    <div class="fixed bottom-8 right-6 md:bottom-10 md:right-10 z-50 flex items-center gap-5">
+      <div id="validationBox" class="clay-pill px-6 py-4 hidden sm:flex flex-col items-end border-none">
+        <div class="text-sm font-bold text-white flex items-center gap-2">
+          <span
+            class="material-symbols-outlined text-[#48cae4] text-[22px] drop-shadow-[0_0_8px_rgba(72,202,228,0.5)]">verified</span>
           Listo
         </div>
-        <div id="validationText" class="text-xs text-slate-400 mt-1">
+        <div id="validationText" class="text-[10px] uppercase tracking-[0.1em] text-peach-300/80 mt-1">
           API conectada
         </div>
       </div>
 
       <button id="btnSimular"
-        class="bg-white text-slate-900 font-extrabold text-xl py-4 px-8 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 fab-glow border-4 border-slate-900">
+        class="bg-gradient-to-r from-coral-500 to-peach-400 text-white font-bold text-xl py-5 px-10 rounded-[40px] hover:scale-[1.05] active:scale-[0.95] transition-all flex items-center gap-4 shadow-[0_10px_30px_rgba(255,107,82,0.4)] border border-white/20">
         <span class="material-symbols-outlined fill text-[28px]">bolt</span>
         Simular Impacto
       </button>
@@ -425,19 +501,19 @@
 
       const tbody = document.getElementById("lineRows");
       const tr = document.createElement("tr");
-      tr.className = "line-row border-b border-slate-800 text-slate-200 hover:bg-slate-800/35 transition-colors";
+      tr.className = "line-row border-b border-white/10 text-slate-100 hover:bg-white/5 transition-colors";
       tr.dataset.lineId = String(lineCounter);
 
       tr.innerHTML = `
-        <td class="py-3 px-4 font-mono text-slate-400 line-index">${lineCounter}</td>
-        <td class="py-3 px-4">
+        <td class="py-4 px-5 font-mono text-peach-300/80 line-index">${lineCounter}</td>
+        <td class="py-4 px-5">
           <input class="line-row-input js-id-articulo font-mono w-full" placeholder="Ej: 1003" value="${escAttr(idArticulo)}"/>
         </td>
-        <td class="py-3 px-4 text-right">
-          <input class="line-row-input js-cantidad w-full text-right font-black" type="number" min="1" placeholder="0" value="${escAttr(cantidad)}"/>
+        <td class="py-4 px-5 text-right">
+          <input class="line-row-input js-cantidad w-full text-right font-semibold" type="number" min="1" placeholder="0" value="${escAttr(cantidad)}"/>
         </td>
-        <td class="py-3 px-4 text-center">
-          <button class="text-slate-400 hover:text-red-300 transition-colors inline-flex items-center justify-center" onclick="removeLine(${lineCounter})" title="Eliminar línea">
+        <td class="py-4 px-5 text-center">
+          <button class="text-peach-300/70 hover:text-coral-400 transition-colors inline-flex items-center justify-center" onclick="removeLine(${lineCounter})" title="Eliminar línea">
             <span class="material-symbols-outlined">delete</span>
           </button>
         </td>
@@ -567,7 +643,7 @@
       container.innerHTML = "";
 
       if (!rows.length) {
-        container.innerHTML = `<div class="text-slate-300">No se ha recibido stock priorizado.</div>`;
+        container.innerHTML = `<div class="text-peach-300/80">No se ha recibido stock priorizado.</div>`;
         return;
       }
 
@@ -576,37 +652,32 @@
         const priorizada = Number(row.cantidad_priorizada || 0);
         const simulado = Number(row.stock_simulado || 0);
         const pct = original > 0 ? Math.max(0, Math.min(100, (simulado / original) * 100)) : 0;
-        const severe = Number(row.faltante_prioritario || 0) > 0 ? "grad-critical" : priorizada > 0 ? "grad-optimal" : "grad-complete";
 
         const div = document.createElement("div");
-        div.className = `rounded-3xl p-1 ${severe}`;
+        div.className = "clay-card p-6 relative overflow-hidden";
         div.innerHTML = `
-          <div class="bg-slate-900/90 rounded-[22px] p-5 border border-white/10">
-            <div class="flex justify-between items-start gap-3">
+          <div class="absolute -top-10 -right-10 w-40 h-40 bg-coral-500/20 rounded-full blur-2xl"></div>
+          <div class="relative z-10">
+            <div class="font-mono text-sm font-bold clay-pill text-peach-300 px-3 py-1.5 inline-block">#${esc(row.id_articulo)}</div>
+            <h3 class="text-white font-medium text-xl mt-4">${esc(row.descripcion)}</h3>
+            <div class="grid grid-cols-3 gap-3 mt-6 text-center">
               <div>
-                <div class="font-mono text-sm font-bold bg-white/10 text-white px-2 py-1 rounded-lg inline-block">#${esc(row.id_articulo)}</div>
-                <h3 class="text-white font-bold text-lg mt-3">${esc(row.descripcion)}</h3>
-              </div>
-              <span class="text-xs font-bold uppercase text-slate-300">Stock</span>
-            </div>
-            <div class="grid grid-cols-3 gap-3 mt-5 text-center">
-              <div>
-                <div class="text-slate-400 text-[10px] uppercase font-bold">Original</div>
-                <div class="text-white font-black text-xl">${fmt(original)}</div>
+                <div class="text-peach-300/70 text-[10px] uppercase font-bold tracking-[0.15em]">Original</div>
+                <div class="text-white font-semibold text-2xl">${fmt(original)}</div>
               </div>
               <div>
-                <div class="text-slate-400 text-[10px] uppercase font-bold">Priorizado</div>
-                <div class="text-white font-black text-xl">${fmt(priorizada)}</div>
+                <div class="text-peach-300/70 text-[10px] uppercase font-bold tracking-[0.15em]">Priorizado</div>
+                <div class="text-white font-semibold text-2xl">${fmt(priorizada)}</div>
               </div>
               <div>
-                <div class="text-slate-400 text-[10px] uppercase font-bold">Simulado</div>
-                <div class="text-white font-black text-xl">${fmt(simulado)}</div>
+                <div class="text-peach-300/70 text-[10px] uppercase font-bold tracking-[0.15em]">Simulado</div>
+                <div class="text-white font-semibold text-2xl">${fmt(simulado)}</div>
               </div>
             </div>
-            <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden mt-5">
-              <div class="bg-blue-400 h-2 rounded-full" style="width: ${pct}%"></div>
+            <div class="w-full bg-black/20 rounded-full h-3 overflow-hidden p-0.5 shadow-inner mt-6">
+              <div class="bg-[#48cae4] h-full rounded-full shadow-[0_0_10px_rgba(72,202,228,0.8)]" style="width: ${pct}%"></div>
             </div>
-            ${Number(row.faltante_prioritario || 0) > 0 ? `<div class="mt-3 text-red-300 text-sm font-bold">Faltante prioritario: ${fmt(row.faltante_prioritario)}</div>` : ""}
+            ${Number(row.faltante_prioritario || 0) > 0 ? `<div class="mt-4 text-coral-400 text-sm font-bold">Faltante prioritario: ${fmt(row.faltante_prioritario)}</div>` : ""}
           </div>
         `;
 
@@ -622,42 +693,42 @@
       container.innerHTML = "";
 
       if (!rows.length) {
-        container.innerHTML = `<div class="text-slate-300">No hay líneas afectadas por este escenario.</div>`;
+        container.innerHTML = `<div class="text-peach-300/80">No hay líneas afectadas por este escenario.</div>`;
         return;
       }
 
       rows.forEach(row => {
         const sev = String(row.severidad || "BAJA").toUpperCase();
-        const grad = sev === "ALTA" || sev === "CRITICA" ? "grad-critical" : sev === "MEDIA" ? "grad-optimal" : "grad-complete";
 
         const div = document.createElement("div");
-        div.className = `rounded-3xl p-1 ${grad} hover-3d`;
+        div.className = "clay-card p-6 relative overflow-hidden";
         div.innerHTML = `
-          <div class="bg-slate-900/90 rounded-[22px] p-5 border border-white/10 h-full">
+          <div class="absolute -top-12 -right-10 w-40 h-40 bg-coral-500/20 rounded-full blur-2xl"></div>
+          <div class="relative z-10">
             <div class="flex justify-between items-start gap-3">
-              <span class="font-mono text-sm font-bold bg-white/10 text-white px-2 py-1 rounded-lg">#${esc(row.id_articulo)}</span>
-              <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider severity-${sev}">${esc(sev)}</span>
+              <span class="clay-pill px-4 py-1.5 font-mono text-sm text-peach-300 tracking-wider border-none">#${esc(row.id_articulo)}</span>
+              <span class="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] severity-${sev}">${esc(sev)}</span>
             </div>
-            <h3 class="text-white font-bold text-xl mt-4 leading-tight">${esc(row.descripcion)}</h3>
-            <div class="text-slate-400 text-sm mt-2">${esc(row.cliente)}</div>
-            <div class="text-slate-300 font-mono text-sm mt-1">${esc(row.document_no)}</div>
+            <h3 class="text-2xl font-medium text-white leading-tight mt-5">${esc(row.descripcion)}</h3>
+            <div class="text-peach-300/80 text-sm mt-2">${esc(row.cliente)}</div>
+            <div class="text-white/80 font-mono text-sm mt-1">${esc(row.document_no)}</div>
 
-            <div class="grid grid-cols-3 gap-3 mt-5">
-              <div class="bg-slate-800/70 rounded-2xl p-3">
-                <div class="text-slate-400 text-[10px] uppercase font-bold">Pendiente</div>
-                <div class="text-white font-black text-lg">${fmt(row.cantidad_pendiente)}</div>
+            <div class="grid grid-cols-3 gap-3 mt-6">
+              <div class="bg-black/12 rounded-3xl p-4">
+                <div class="text-peach-300/70 text-[10px] uppercase font-bold tracking-[0.15em]">Pendiente</div>
+                <div class="text-white font-semibold text-2xl">${fmt(row.cantidad_pendiente)}</div>
               </div>
-              <div class="bg-slate-800/70 rounded-2xl p-3">
-                <div class="text-slate-400 text-[10px] uppercase font-bold">Falt. base</div>
-                <div class="text-white font-black text-lg">${fmt(row.cantidad_faltante_base)}</div>
+              <div class="bg-black/12 rounded-3xl p-4">
+                <div class="text-peach-300/70 text-[10px] uppercase font-bold tracking-[0.15em]">Falt. base</div>
+                <div class="text-white font-semibold text-2xl">${fmt(row.cantidad_faltante_base)}</div>
               </div>
-              <div class="bg-slate-800/70 rounded-2xl p-3">
-                <div class="text-slate-400 text-[10px] uppercase font-bold">Impacto</div>
-                <div class="text-red-300 font-black text-lg">${fmt(row.impacto_linea)}</div>
+              <div class="bg-black/12 rounded-3xl p-4">
+                <div class="text-peach-300/70 text-[10px] uppercase font-bold tracking-[0.15em]">Impacto</div>
+                <div class="text-coral-400 font-semibold text-2xl">${fmt(row.impacto_linea)}</div>
               </div>
             </div>
 
-            <div class="mt-5 text-xs text-slate-400">
+            <div class="mt-5 text-xs text-peach-300/70">
               Stock antes: base <span class="text-white font-bold">${fmt(row.stock_antes_base)}</span> · simulado <span class="text-white font-bold">${fmt(row.stock_antes_simulado)}</span>
             </div>
           </div>
@@ -675,24 +746,24 @@
       body.innerHTML = "";
 
       if (!rows.length) {
-        body.innerHTML = `<tr><td colspan="9" class="py-5 text-slate-300">No hay pedidos afectados por este escenario.</td></tr>`;
+        body.innerHTML = `<tr><td colspan="9" class="py-5 px-4 text-peach-300/80">No hay pedidos afectados por este escenario.</td></tr>`;
         return;
       }
 
       rows.forEach(row => {
         const sev = String(row.severidad || "BAJA").toUpperCase();
         const tr = document.createElement("tr");
-        tr.className = "border-b border-slate-800 text-slate-200";
+        tr.className = "border-b border-white/10 text-slate-100 hover:bg-white/5 transition-colors";
         tr.innerHTML = `
-          <td class="py-3">${fmt(row.prioridad)}</td>
-          <td class="py-3 font-mono text-blue-300">${esc(row.id_pedido)}</td>
-          <td class="py-3">${esc(row.cliente)}</td>
-          <td class="py-3">${esc(row.estado_base)}</td>
-          <td class="py-3">${esc(row.estado_simulado)}</td>
-          <td class="py-3 text-right">${fmt(row.cantidad_faltante_base)}</td>
-          <td class="py-3 text-right">${fmt(row.cantidad_faltante_simulada)}</td>
-          <td class="py-3 text-right font-black text-red-300">${fmt(row.impacto_cantidad_faltante)}</td>
-          <td class="py-3"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider severity-${sev}">${esc(sev)}</span></td>
+          <td class="py-4 px-4">${fmt(row.prioridad)}</td>
+          <td class="py-4 px-4 font-mono text-[#48cae4]">${esc(row.id_pedido)}</td>
+          <td class="py-4 px-4">${esc(row.cliente)}</td>
+          <td class="py-4 px-4">${esc(row.estado_base)}</td>
+          <td class="py-4 px-4">${esc(row.estado_simulado)}</td>
+          <td class="py-4 px-4 text-right">${fmt(row.cantidad_faltante_base)}</td>
+          <td class="py-4 px-4 text-right">${fmt(row.cantidad_faltante_simulada)}</td>
+          <td class="py-4 px-4 text-right font-bold text-coral-400">${fmt(row.impacto_cantidad_faltante)}</td>
+          <td class="py-4 px-4"><span class="px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.15em] severity-${sev}">${esc(sev)}</span></td>
         `;
         body.appendChild(tr);
       });
@@ -707,7 +778,6 @@
 
     function filterRows(rows, filter, keys) {
       if (!filter) return rows;
-
       return rows.filter(row => keys.some(key => String(row[key] || "").toUpperCase().includes(filter)));
     }
 
@@ -716,10 +786,10 @@
       btn.disabled = isLoading;
 
       if (isLoading) {
-        btn.classList.add("opacity-60", "cursor-not-allowed");
+        btn.classList.add("opacity-70", "cursor-not-allowed");
         btn.innerHTML = `<span class="material-symbols-outlined fill text-[28px] animate-spin">progress_activity</span> Calculando...`;
       } else {
-        btn.classList.remove("opacity-60", "cursor-not-allowed");
+        btn.classList.remove("opacity-70", "cursor-not-allowed");
         btn.innerHTML = `<span class="material-symbols-outlined fill text-[28px]">bolt</span> Simular Impacto`;
       }
     }
@@ -760,19 +830,19 @@
 
       if (type === "ok") {
         icon.textContent = "check_circle";
-        icon.className = "material-symbols-outlined text-emerald-400";
+        icon.className = "material-symbols-outlined accent-teal";
         title.textContent = "Correcto";
       } else if (type === "error") {
         icon.textContent = "error";
-        icon.className = "material-symbols-outlined text-red-400";
+        icon.className = "material-symbols-outlined accent-coral";
         title.textContent = "Error";
       } else if (type === "loading") {
         icon.textContent = "progress_activity";
-        icon.className = "material-symbols-outlined text-blue-300 animate-spin";
+        icon.className = "material-symbols-outlined accent-teal animate-spin";
         title.textContent = "Calculando";
       } else {
         icon.textContent = "info";
-        icon.className = "material-symbols-outlined text-blue-300";
+        icon.className = "material-symbols-outlined accent-teal";
         title.textContent = "Información";
       }
     }
