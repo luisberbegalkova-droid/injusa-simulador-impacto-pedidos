@@ -148,6 +148,24 @@
       border: 1px solid rgba(16, 185, 129, .35);
     }
 
+
+    .js-cantidad {
+      background-color: rgba(15, 23, 42, 0.85) !important;
+      color: #ffffff !important;
+      border-color: rgba(96, 165, 250, 0.45) !important;
+    }
+
+    .js-cantidad:focus {
+      background-color: rgba(15, 23, 42, 0.95) !important;
+      color: #ffffff !important;
+    }
+
+    .js-cantidad::-webkit-outer-spin-button,
+    .js-cantidad::-webkit-inner-spin-button {
+      opacity: 1;
+      filter: invert(1);
+    }
+
     .status-panel {
       display: none;
     }
@@ -368,7 +386,7 @@
         if (lastData) renderResults(lastData);
       });
 
-      addLine("1003", "50", "INJUSA CORRE");
+      addLine("", "", "");
     });
 
     function addLine(idArticulo = "", cantidad = "", descripcion = "") {
@@ -400,7 +418,7 @@
           <div class="flex items-end justify-between mt-auto pt-4 gap-4">
             <div class="flex flex-col flex-1">
               <label class="small-label">Cantidad</label>
-              <input class="input-dark js-cantidad text-3xl font-black" type="number" min="1" placeholder="50" value="${escAttr(cantidad)}"/>
+              <input class="input-dark js-cantidad text-3xl font-black" type="number" min="1" placeholder="Cantidad" value="${escAttr(cantidad)}"/>
             </div>
 
             <div class="flex flex-col items-end w-1/2">
