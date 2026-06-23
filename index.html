@@ -719,8 +719,13 @@
         }
 
         lastData = data;
-        showStatus("Simulación calculada correctamente.", "ok");
-        renderResults(data);
+        try {
+          renderResults(data);
+          showStatus("Simulación calculada correctamente.", "ok");
+        } catch (renderErr) {
+          console.error("Error pintando resultados:", renderErr, data);
+          showStatus("La simulación terminó, pero hubo un error pintando resultados: " + renderErr.message, "error");
+        }
       });
     }
 
@@ -742,11 +747,8 @@
 
       const pedidosRaw = data.impacto_pedidos || [];
       const lineasRaw = data.impacto_lineas || [];
-      const stockRaw = data.stock_simulado || [];
-
       const lineas = filterRows(lineasRaw, filter, ["document_no", "cliente", "id_articulo", "descripcion"]);
       const pedidos = filterRows(pedidosRaw, filter, ["id_pedido", "cliente", "estado_base", "estado_simulado"]);
-      const stockPriorizado = stockRaw.filter(row => Number(row.cantidad_priorizada || 0) > 0);
 
       document.getElementById("summarySection").classList.remove("hidden");
       document.getElementById("metricScenario").textContent = data.escenario_id || "-";
@@ -755,7 +757,6 @@
       document.getElementById("metricLineas").textContent = fmt(lineasRaw.length);
       document.getElementById("metricPedidos").textContent = fmt(pedidosRaw.length);
 
-      renderStock(stockPriorizado);
       renderLineImpact(lineas);
       renderOrderImpact(pedidos);
 
@@ -940,12 +941,21 @@
       }
     }
 
-    function jsonp(url, params, callback) {
+    function jsonp(url, params, callback, options = {}) {
       const callbackName = "cb_" + Date.now() + "_" + Math.floor(Math.random() * 1000000);
+      const timeoutMs = options.timeoutMs || 90000;
+      let finished = false;
+
+      const cleanup = () => {
+        try { delete window[callbackName]; } catch (e) { }
+        try { if (script && script.parentNode) script.parentNode.removeChild(script); } catch (e) { }
+        try { clearTimeout(timer); } catch (e) { }
+      };
 
       window[callbackName] = function (data) {
-        delete window[callbackName];
-        script.remove();
+        if (finished) return;
+        finished = true;
+        cleanup();
         callback(data);
       };
 
@@ -958,9 +968,20 @@
       script.src = url + "?" + query.toString();
 
       script.onerror = function () {
+        if (finished) return;
+        finished = true;
+        cleanup();
         setLoading(false);
-        showStatus("Error llamando a Apps Script. Revisa despliegue y permisos.", "error");
+        showStatus("Error llamando a Apps Script. Revisa despliegue, permisos o vuelve a implementar una nueva versión.", "error");
       };
+
+      const timer = setTimeout(() => {
+        if (finished) return;
+        finished = true;
+        cleanup();
+        setLoading(false);
+        showStatus("Apps Script está tardando demasiado o no ha devuelto respuesta. Revisa si la simulación terminó en Google Sheets y vuelve a ejecutar.", "error");
+      }, timeoutMs);
 
       document.body.appendChild(script);
     }
