@@ -319,6 +319,17 @@
 
             <h1 class="text-4xl md:text-5xl font-semibold text-white tracking-tight mb-8">Simulador de impacto</h1>
 
+            <div class="flex gap-4 p-1.5 clay-pill w-fit mb-8">
+              <button id="tabManual" onclick="switchMode('manual')"
+                class="px-6 py-2 rounded-full font-bold text-sm transition-all duration-200 bg-gradient-to-r from-coral-500 to-peach-400 text-white shadow-md">
+                Artículos Sueltos (Manual)
+              </button>
+              <button id="tabPedido" onclick="switchMode('pedido')"
+                class="px-6 py-2 rounded-full font-bold text-sm transition-all duration-200 text-peach-300/80 hover:text-white">
+                Pedido Existente (Atlas)
+              </button>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div class="clay-pill px-5 py-4">
                 <label class="label-caps">Cliente prioritario</label>
@@ -344,7 +355,7 @@
         </div>
       </section>
 
-      <section class="clay-panel p-6 md:p-8 w-full">
+      <section id="sectionManual" class="clay-panel p-6 md:p-8 w-full">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-6">
           <h2 class="text-2xl md:text-3xl font-semibold text-white flex items-center gap-4">
             <span class="w-10 h-10 rounded-full bg-peach-300/20 flex items-center justify-center">
@@ -381,6 +392,28 @@
           Introduce los artículos y cantidades del pedido prioritario. Empieza con una línea y se crea otra
           automáticamente cuando completas ID artículo y cantidad. Al simular, las líneas vacías se ignoran.
         </p>
+      </section>
+
+      <!-- SECCIÓN MODO PEDIDO EXISTENTE -->
+      <section id="sectionPedido" class="hidden clay-panel p-6 md:p-8 w-full">
+        <div class="flex flex-col gap-6">
+          <h2 class="text-2xl md:text-3xl font-semibold text-white flex items-center gap-4">
+            <span class="w-10 h-10 rounded-full bg-peach-300/20 flex items-center justify-center">
+              <span class="material-symbols-outlined accent-peach">shopping_cart</span>
+            </span>
+            Pedido a simular
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+            <div class="clay-pill px-5 py-4">
+              <label class="label-caps">Número de pedido</label>
+              <input id="pedidoInput" class="input-clay font-mono" placeholder="Ej: PVAI2603117" value="" />
+            </div>
+            <div class="text-peach-300/80 text-sm mb-4">
+              Introduce el número de pedido exacto registrado en Atlas (ej: <span class="font-mono text-[#48cae4] font-bold">PVAI2603117</span>). El simulador comprobará si tiene stock suficiente y calculará el impacto sobre el resto de pedidos.
+            </div>
+          </div>
+        </div>
       </section>
 
       <section id="summarySection" class="hidden grid grid-cols-1 md:grid-cols-4 gap-5">
@@ -695,7 +728,47 @@
       document.getElementById("lineCount").textContent = count + (count === 1 ? " Item" : " Items");
     }
 
+    let currentMode = "manual";
+
+    function switchMode(mode) {
+      if (mode === currentMode) return;
+      currentMode = mode;
+
+      const tabManual = document.getElementById("tabManual");
+      const tabPedido = document.getElementById("tabPedido");
+      const sectionManual = document.getElementById("sectionManual");
+      const sectionPedido = document.getElementById("sectionPedido");
+      const scenarioLabel = document.getElementById("scenarioLabel");
+
+      if (mode === "manual") {
+        tabManual.className = "px-6 py-2 rounded-full font-bold text-sm transition-all duration-200 bg-gradient-to-r from-coral-500 to-peach-400 text-white shadow-md";
+        tabPedido.className = "px-6 py-2 rounded-full font-bold text-sm transition-all duration-200 text-peach-300/80 hover:text-white";
+        sectionManual.classList.remove("hidden");
+        sectionPedido.classList.add("hidden");
+        scenarioLabel.textContent = "Nuevo Análisis";
+      } else {
+        tabPedido.className = "px-6 py-2 rounded-full font-bold text-sm transition-all duration-200 bg-gradient-to-r from-coral-500 to-peach-400 text-white shadow-md";
+        tabManual.className = "px-6 py-2 rounded-full font-bold text-sm transition-all duration-200 text-peach-300/80 hover:text-white";
+        sectionManual.classList.add("hidden");
+        sectionPedido.classList.remove("hidden");
+        scenarioLabel.textContent = "Pedido Existente";
+      }
+      clearResults();
+    }
+
     function getPayload() {
+      if (currentMode === "pedido") {
+        return {
+          cliente: document.getElementById("cliente").value.trim(),
+          pedido: document.getElementById("pedidoInput").value.trim(),
+          usuario: document.getElementById("usuario").value.trim() || "webapp",
+          prioridad: "",
+          fecha_deseada: document.getElementById("fechaDeseada").value,
+          comentario: "",
+          lineas: [] // Empty array as base specification. The backend is expected to resolve lines from db.
+        };
+      }
+
       const lineas = Array.from(document.querySelectorAll(".line-row"))
         .map(row => ({
           id_articulo: row.querySelector(".js-id-articulo").value.trim(),
@@ -718,8 +791,13 @@
       try {
         const payload = getPayload();
 
-        if (!payload.lineas.length) {
+        if (currentMode === "manual" && !payload.lineas.length) {
           showStatus("Introduce al menos una línea con ID artículo y cantidad.", "error");
+          return;
+        }
+
+        if (currentMode === "pedido" && !payload.pedido) {
+          showStatus("Introduce el número de pedido para simular.", "error");
           return;
         }
 
