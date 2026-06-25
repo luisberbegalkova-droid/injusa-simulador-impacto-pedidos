@@ -906,10 +906,20 @@
         return;
       }
 
+      let totalRequested = 0;
+      let totalMissing = 0;
+      priorityItems.forEach(item => {
+        totalRequested += Number(item.cantidad_priorizada || 0);
+        totalMissing += Number(item.faltante_prioritario || 0);
+      });
+
+      const totalServible = totalRequested - totalMissing;
+      const coverageRatio = totalRequested > 0 ? (totalServible / totalRequested) : 1;
       const missingItems = priorityItems.filter(s => Number(s.faltante_prioritario || 0) > 0);
 
-      if (missingItems.length === 0) {
-        panel.classList.remove("border-coral-500/30", "bg-coral-500/5");
+      panel.className = "clay-panel p-6 md:p-8 w-full border transition-all duration-300";
+
+      if (totalMissing === 0) {
         panel.classList.add("border-teal-500/30", "bg-teal-500/5");
         
         icon.textContent = "check_circle";
@@ -917,27 +927,41 @@
         if (iconBg) iconBg.className = "w-14 h-14 rounded-full flex items-center justify-center bg-teal-500/20 shadow-md";
         
         title.textContent = "Pedido Completamente Servible";
-        msg.innerHTML = `Puedes servir el pedido prioritario <span class="font-mono text-teal-300 font-bold">${esc(data.resumen && data.resumen.escenario_id || data.escenario_id || "simulado")}</span> completo sin faltas.`;
-      } else {
-        panel.classList.remove("border-teal-500/30", "bg-teal-500/5");
-        panel.classList.add("border-coral-500/30", "bg-coral-500/5");
+        msg.innerHTML = `<span class="font-bold text-white text-base">Puedes servir el pedido completo.</span>`;
+      } else if (coverageRatio >= 0.5) {
+        panel.classList.add("border-amber-500/30", "bg-amber-500/5");
         
         icon.textContent = "warning";
+        icon.className = "material-symbols-outlined text-3xl text-amber-400";
+        if (iconBg) iconBg.className = "w-14 h-14 rounded-full flex items-center justify-center bg-amber-500/20 shadow-md";
+        
+        title.textContent = "Pedido Servible Parcialmente (Cobertura >= 50%)";
+        
+        const missingText = missingItems.map(item => {
+          return `Artículo <span class="font-mono text-amber-300 font-bold">#${esc(item.id_articulo)}</span> (${fmt(item.faltante_prioritario)} uds)`;
+        }).join(", ");
+        
+        msg.innerHTML = `
+          <div class="font-bold text-white text-base">Puedes servir el pedido, pero faltan:</div>
+          <div class="mt-2 text-peach-300">${missingText}.</div>
+        `;
+      } else {
+        panel.classList.add("border-coral-500/30", "bg-coral-500/5");
+        
+        icon.textContent = "cancel";
         icon.className = "material-symbols-outlined text-3xl text-coral-400";
         if (iconBg) iconBg.className = "w-14 h-14 rounded-full flex items-center justify-center bg-coral-500/20 shadow-md";
-
-        title.textContent = "Pedido con Faltas";
         
-        const details = missingItems.map(item => {
-          const missing = Number(item.faltante_prioritario);
-          const total = Number(item.cantidad_priorizada);
-          return `<li class="mt-1">Artículo <span class="font-mono text-coral-300 font-bold">#${esc(item.id_articulo)}</span>: faltan <span class="font-bold">${fmt(missing)}</span> de <span class="font-bold">${fmt(total)}</span> unidades requeridas.</li>`;
-        }).join("");
+        title.textContent = "Pedido No Servible (Cobertura < 50%)";
+        
+        const missingText = missingItems.map(item => {
+          return `Artículo <span class="font-mono text-coral-300 font-bold">#${esc(item.id_articulo)}</span> (${fmt(item.faltante_prioritario)} uds)`;
+        }).join(", ");
 
-        msg.innerHTML = `Puedes servir el pedido prioritario excepto las siguientes piezas:
-          <ul class="list-disc pl-5 mt-2 space-y-1">
-            ${details}
-          </ul>`;
+        msg.innerHTML = `
+          <div class="font-bold text-white text-base">No se puede servir el pedido.</div>
+          <div class="mt-2 text-peach-300/80">Cobertura actual: <span class="font-bold text-coral-400">${Math.round(coverageRatio * 100)}%</span>. Faltan: ${missingText}.</div>
+        `;
       }
     }
 
