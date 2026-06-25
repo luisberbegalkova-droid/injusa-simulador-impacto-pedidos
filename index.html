@@ -435,6 +435,19 @@
         </div>
       </section>
 
+      <!-- SECCIÓN VIABILIDAD DE PEDIDO PRIORITARIO -->
+      <section id="priorityOrderFeasibility" class="hidden clay-panel p-6 md:p-8 w-full border border-teal-500/30 bg-teal-500/5">
+        <div class="flex items-center gap-5">
+          <div id="feasibilityIconBg" class="w-14 h-14 rounded-full flex items-center justify-center bg-teal-500/20 shadow-md">
+            <span id="feasibilityIcon" class="material-symbols-outlined text-3xl text-teal-400">check_circle</span>
+          </div>
+          <div>
+            <h3 id="feasibilityTitle" class="text-xl font-bold text-white tracking-wide">Viabilidad del Pedido</h3>
+            <div id="feasibilityMessage" class="text-sm text-peach-300/80 mt-2 leading-relaxed"></div>
+          </div>
+        </div>
+      </section>
+
       <section id="familySummarySection" class="hidden clay-panel p-6 md:p-8">
         <h2 class="text-2xl md:text-3xl font-semibold text-white flex items-center gap-4 mb-6">
           <span class="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center">
@@ -864,8 +877,68 @@
 
       renderLineImpact(lineas);
       renderOrderImpact(pedidos);
+      renderPriorityFeasibility(data);
 
       document.getElementById("validationText").textContent = "Escenario " + (data.escenario_id || "OK");
+    }
+
+    function renderPriorityFeasibility(data) {
+      const panel = document.getElementById("priorityOrderFeasibility");
+      const iconBg = document.getElementById("feasibilityIconBg");
+      const icon = document.getElementById("feasibilityIcon");
+      const title = document.getElementById("feasibilityTitle");
+      const msg = document.getElementById("feasibilityMessage");
+
+      if (!panel) return;
+
+      if (currentMode !== "pedido") {
+        panel.classList.add("hidden");
+        return;
+      }
+
+      panel.classList.remove("hidden");
+
+      const stockRows = data.stock_simulado || [];
+      const priorityItems = stockRows.filter(s => Number(s.cantidad_priorizada || 0) > 0);
+
+      if (!priorityItems.length) {
+        panel.classList.add("hidden");
+        return;
+      }
+
+      const missingItems = priorityItems.filter(s => Number(s.faltante_prioritario || 0) > 0);
+
+      if (missingItems.length === 0) {
+        panel.classList.remove("border-coral-500/30", "bg-coral-500/5");
+        panel.classList.add("border-teal-500/30", "bg-teal-500/5");
+        
+        icon.textContent = "check_circle";
+        icon.className = "material-symbols-outlined text-3xl text-teal-400";
+        if (iconBg) iconBg.className = "w-14 h-14 rounded-full flex items-center justify-center bg-teal-500/20 shadow-md";
+        
+        title.textContent = "Pedido Completamente Servible";
+        msg.innerHTML = `Puedes servir el pedido prioritario <span class="font-mono text-teal-300 font-bold">${esc(data.resumen && data.resumen.escenario_id || data.escenario_id || "simulado")}</span> completo sin faltas.`;
+      } else {
+        panel.classList.remove("border-teal-500/30", "bg-teal-500/5");
+        panel.classList.add("border-coral-500/30", "bg-coral-500/5");
+        
+        icon.textContent = "warning";
+        icon.className = "material-symbols-outlined text-3xl text-coral-400";
+        if (iconBg) iconBg.className = "w-14 h-14 rounded-full flex items-center justify-center bg-coral-500/20 shadow-md";
+
+        title.textContent = "Pedido con Faltas";
+        
+        const details = missingItems.map(item => {
+          const missing = Number(item.faltante_prioritario);
+          const total = Number(item.cantidad_priorizada);
+          return `<li class="mt-1">Artículo <span class="font-mono text-coral-300 font-bold">#${esc(item.id_articulo)}</span>: faltan <span class="font-bold">${fmt(missing)}</span> de <span class="font-bold">${fmt(total)}</span> unidades requeridas.</li>`;
+        }).join("");
+
+        msg.innerHTML = `Puedes servir el pedido prioritario excepto las siguientes piezas:
+          <ul class="list-disc pl-5 mt-2 space-y-1">
+            ${details}
+          </ul>`;
+      }
     }
 
     function renderFamilySummary(rows) {
@@ -1088,15 +1161,11 @@
     function clearResults() {
 
       const idsToHide = [
-
         "summarySection",
-
+        "priorityOrderFeasibility",
         "familySummarySection",
-
         "lineImpactSection",
-
         "orderImpactSection"
-
       ];
 
 
