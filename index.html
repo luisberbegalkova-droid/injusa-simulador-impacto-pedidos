@@ -459,6 +459,33 @@
         <div id="familySummaryCards" class="grid grid-cols-1 lg:grid-cols-2 gap-5"></div>
       </section>
 
+      <section id="orderImpactSection" class="hidden clay-panel p-6 md:p-8">
+        <h2 class="text-2xl md:text-3xl font-semibold text-white flex items-center gap-4 mb-6">
+          <span class="w-10 h-10 rounded-full bg-peach-300/20 flex items-center justify-center">
+            <span class="material-symbols-outlined accent-peach">account_tree</span>
+          </span>
+          Impacto por pedido completo
+        </h2>
+        <div class="overflow-x-auto rounded-[30px] border border-white/10 bg-black/10">
+          <table class="w-full min-w-[1100px] text-sm">
+            <thead class="text-peach-300/70 uppercase text-[11px] tracking-[0.15em]">
+              <tr class="border-b border-white/10">
+                <th class="py-4 px-4 text-left">Prioridad</th>
+                <th class="py-4 px-4 text-left">Pedido</th>
+                <th class="py-4 px-4 text-left">Cliente</th>
+                <th class="py-4 px-4 text-left">Estado base</th>
+                <th class="py-4 px-4 text-left">Estado simulado</th>
+                <th class="py-4 px-4 text-right">Faltante base</th>
+                <th class="py-4 px-4 text-right">Faltante sim.</th>
+                <th class="py-4 px-4 text-right">Impacto</th>
+                <th class="py-4 px-4 text-left">Severidad</th>
+              </tr>
+            </thead>
+            <tbody id="orderImpactBody"></tbody>
+          </table>
+        </div>
+      </section>
+
       <section id="lineImpactSection" class="hidden clay-panel p-6 md:p-8">
         <h2 class="text-2xl md:text-3xl font-semibold text-white flex items-center gap-4 mb-6">
           <span class="w-10 h-10 rounded-full bg-coral-500/20 flex items-center justify-center">
@@ -484,33 +511,6 @@
               </tr>
             </thead>
             <tbody id="lineImpactBody"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section id="orderImpactSection" class="hidden clay-panel p-6 md:p-8">
-        <h2 class="text-2xl md:text-3xl font-semibold text-white flex items-center gap-4 mb-6">
-          <span class="w-10 h-10 rounded-full bg-peach-300/20 flex items-center justify-center">
-            <span class="material-symbols-outlined accent-peach">account_tree</span>
-          </span>
-          Impacto por pedido completo
-        </h2>
-        <div class="overflow-x-auto rounded-[30px] border border-white/10 bg-black/10">
-          <table class="w-full min-w-[1100px] text-sm">
-            <thead class="text-peach-300/70 uppercase text-[11px] tracking-[0.15em]">
-              <tr class="border-b border-white/10">
-                <th class="py-4 px-4 text-left">Prioridad</th>
-                <th class="py-4 px-4 text-left">Pedido</th>
-                <th class="py-4 px-4 text-left">Cliente</th>
-                <th class="py-4 px-4 text-left">Estado base</th>
-                <th class="py-4 px-4 text-left">Estado simulado</th>
-                <th class="py-4 px-4 text-right">Faltante base</th>
-                <th class="py-4 px-4 text-right">Faltante sim.</th>
-                <th class="py-4 px-4 text-right">Impacto</th>
-                <th class="py-4 px-4 text-left">Severidad</th>
-              </tr>
-            </thead>
-            <tbody id="orderImpactBody"></tbody>
           </table>
         </div>
       </section>
