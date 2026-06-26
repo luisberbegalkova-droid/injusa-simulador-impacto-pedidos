@@ -391,9 +391,12 @@
           title="Probar conexión">
           <span class="material-symbols-outlined text-[22px]">cloud_done</span>
         </button>
-        <div
-          class="w-10 h-10 rounded-full border-2 border-peach-300/30 flex items-center justify-center overflow-hidden shadow-inner text-white font-bold">
-          L
+        <div onclick="askUser()" class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity" title="Cambiar usuario">
+          <span id="userLabel" class="text-sm font-semibold text-[#0f2e32] hidden sm:inline">webapp</span>
+          <div id="userAvatar"
+            class="w-10 h-10 rounded-full border-2 border-peach-300/30 flex items-center justify-center overflow-hidden shadow-inner text-white font-bold bg-[#0b3137]">
+            W
+          </div>
         </div>
       </div>
     </header>
@@ -449,27 +452,6 @@
               </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <div class="clay-pill px-5 py-4">
-                <label class="label-caps">Cliente prioritario</label>
-                <input id="cliente" class="input-clay" placeholder="Ej: CLIENTE VIP" value="" />
-              </div>
-
-              <div class="clay-pill px-5 py-4">
-                <label class="label-caps">Usuario</label>
-                <input id="usuario" class="input-clay" placeholder="Ej: Luis" value="webapp" />
-              </div>
-
-              <div class="clay-pill px-5 py-4">
-                <label class="label-caps">Fecha efecto</label>
-                <input id="fechaDeseada" class="input-clay" type="date" value="" />
-              </div>
-            </div>
-
-            <p class="mt-4 text-sm text-peach-300/80">
-              La fecha efecto indica desde cuándo quieres que el pedido prioritario consuma stock. Si la dejas vacía, se
-              interpreta como impacto inmediato.
-            </p>
           </div>
         </div>
       </section>
@@ -523,13 +505,24 @@
             Pedido a simular
           </h2>
           
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
-            <div class="clay-pill px-5 py-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+            <div class="clay-pill px-5 py-4 w-full">
               <label class="label-caps">Número de pedido</label>
               <input id="pedidoInput" class="input-clay font-mono" placeholder="Ej: PVAI2603117" value="" />
             </div>
-            <div class="text-peach-300/80 text-sm mb-4">
-              Introduce el número de pedido exacto registrado en Atlas (ej: <span class="font-mono text-[#48cae4] font-bold">PVAI2603117</span>). El simulador comprobará si tiene stock suficiente y calculará el impacto sobre el resto de pedidos.
+
+            <div class="clay-pill px-5 py-4 w-full">
+              <label class="label-caps">Fecha efecto</label>
+              <input id="fechaDeseada" class="input-clay" type="date" value="" />
+            </div>
+
+            <div class="text-peach-300/80 text-sm mt-2 md:mt-4">
+              <p class="mb-2">
+                Introduce el número de pedido exacto registrado en Atlas (ej: <span class="font-mono text-[#0369a1] font-bold">PVAI2603117</span>).
+              </p>
+              <p>
+                La fecha efecto indica desde cuándo quieres que consuma stock. Vacía = impacto inmediato.
+              </p>
             </div>
           </div>
         </div>
@@ -699,6 +692,30 @@
       } catch (e) { }
     });
 
+    let currentUser = localStorage.getItem("sim_usuario") || "";
+
+    function askUser() {
+      const user = prompt("Introduce tu nombre de usuario para registrar las simulaciones:", currentUser || "webapp");
+      if (user) {
+        currentUser = user.trim();
+        localStorage.setItem("sim_usuario", currentUser);
+        updateUserUI();
+      } else if (!currentUser) {
+        currentUser = "webapp";
+        localStorage.setItem("sim_usuario", currentUser);
+        updateUserUI();
+      }
+    }
+
+    function updateUserUI() {
+      const userLabel = document.getElementById("userLabel");
+      const userAvatar = document.getElementById("userAvatar");
+      if (userLabel) userLabel.textContent = currentUser;
+      if (userAvatar) {
+        userAvatar.textContent = currentUser.charAt(0).toUpperCase();
+      }
+    }
+
     const API_URL = "https://script.google.com/macros/s/AKfycbxynxAfig1spIHYDKLjSMfSosSxLYTEQPkmy9eKjVBV05KPmHmSCpwbq6Gh1CC51Wlk/exec";
 
     let lineCounter = 0;
@@ -711,6 +728,12 @@
       document.getElementById("globalSearch").addEventListener("input", () => {
         if (lastData) renderResults(lastData);
       });
+
+      if (!currentUser) {
+        askUser();
+      } else {
+        updateUserUI();
+      }
 
       addLine("", "");
     });
@@ -918,14 +941,16 @@
 
     function getPayload() {
       const isConPlan = currentAtlas === "con_plan";
+      const fechaEl = document.getElementById("fechaDeseada");
+      const fechaVal = fechaEl ? fechaEl.value : "";
       
       if (currentMode === "pedido") {
         return {
-          cliente: document.getElementById("cliente").value.trim(),
+          cliente: "",
           pedido: document.getElementById("pedidoInput").value.trim(),
-          usuario: document.getElementById("usuario").value.trim() || "webapp",
+          usuario: currentUser || "webapp",
           prioridad: "",
-          fecha_deseada: document.getElementById("fechaDeseada").value,
+          fecha_deseada: fechaVal,
           comentario: "",
           con_plan: isConPlan,
           plan: isConPlan,
@@ -942,11 +967,11 @@
         .filter(linea => linea.id_articulo && linea.cantidad > 0);
 
       return {
-        cliente: document.getElementById("cliente").value.trim(),
+        cliente: "",
         pedido: "",
-        usuario: document.getElementById("usuario").value.trim() || "webapp",
+        usuario: currentUser || "webapp",
         prioridad: "",
-        fecha_deseada: document.getElementById("fechaDeseada").value,
+        fecha_deseada: fechaVal,
         comentario: "",
         con_plan: isConPlan,
         plan: isConPlan,
