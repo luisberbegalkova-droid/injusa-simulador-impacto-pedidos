@@ -276,11 +276,11 @@
       color: rgba(15, 46, 50, 0.4) !important;
     }
 
-    #tabManual:not(.text-white), #tabPedido:not(.text-white) {
+    #tabManual:not(.text-white), #tabPedido:not(.text-white), #tabSinPlan:not(.text-white), #tabConPlan:not(.text-white) {
       color: #3a5357 !important;
     }
 
-    #tabManual:not(.text-white):hover, #tabPedido:not(.text-white):hover {
+    #tabManual:not(.text-white):hover, #tabPedido:not(.text-white):hover, #tabSinPlan:not(.text-white):hover, #tabConPlan:not(.text-white):hover {
       color: #0f2e32 !important;
     }
 
@@ -419,15 +419,34 @@
 
             <h1 class="text-4xl md:text-5xl font-semibold text-white tracking-tight mb-8">Simulador de impacto</h1>
 
-            <div class="flex gap-4 p-1.5 clay-pill w-fit mb-8">
-              <button id="tabManual" onclick="switchMode('manual')"
-                class="px-6 py-2 rounded-full font-bold text-sm transition-all duration-200 bg-gradient-to-r from-coral-500 to-peach-400 text-white shadow-md">
-                Artículos Sueltos (Manual)
-              </button>
-              <button id="tabPedido" onclick="switchMode('pedido')"
-                class="px-6 py-2 rounded-full font-bold text-sm transition-all duration-200 text-peach-300/80 hover:text-white">
-                Pedido Existente (Atlas)
-              </button>
+            <div class="flex flex-col sm:flex-row gap-6 mb-8">
+              <div>
+                <label class="label-caps">Modo de simulación</label>
+                <div class="flex gap-4 p-1.5 clay-pill w-fit">
+                  <button id="tabManual" onclick="switchMode('manual')"
+                    class="px-6 py-2 rounded-full font-bold text-sm transition-all duration-200 bg-gradient-to-r from-coral-500 to-peach-400 text-white shadow-md">
+                    Artículos Sueltos (Manual)
+                  </button>
+                  <button id="tabPedido" onclick="switchMode('pedido')"
+                    class="px-6 py-2 rounded-full font-bold text-sm transition-all duration-200 text-peach-300/80 hover:text-white">
+                    Pedido Existente (Atlas)
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label class="label-caps">Escenario de Atlas</label>
+                <div class="flex gap-4 p-1.5 clay-pill w-fit">
+                  <button id="tabSinPlan" onclick="switchAtlas('sin_plan')"
+                    class="px-6 py-2 rounded-full font-bold text-sm transition-all duration-200 bg-gradient-to-r from-coral-500 to-peach-400 text-white shadow-md">
+                    Atlas sin plan
+                  </button>
+                  <button id="tabConPlan" onclick="switchAtlas('con_plan')"
+                    class="px-6 py-2 rounded-full font-bold text-sm transition-all duration-200 text-peach-300/80 hover:text-white">
+                    Atlas con plan
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -878,7 +897,28 @@
       clearResults();
     }
 
+    let currentAtlas = "sin_plan";
+
+    function switchAtlas(atlas) {
+      if (atlas === currentAtlas) return;
+      currentAtlas = atlas;
+
+      const tabSinPlan = document.getElementById("tabSinPlan");
+      const tabConPlan = document.getElementById("tabConPlan");
+
+      if (atlas === "sin_plan") {
+        tabSinPlan.className = "px-6 py-2 rounded-full font-bold text-sm transition-all duration-200 bg-gradient-to-r from-coral-500 to-peach-400 text-white shadow-md";
+        tabConPlan.className = "px-6 py-2 rounded-full font-bold text-sm transition-all duration-200 text-peach-300/80 hover:text-white";
+      } else {
+        tabConPlan.className = "px-6 py-2 rounded-full font-bold text-sm transition-all duration-200 bg-gradient-to-r from-coral-500 to-peach-400 text-white shadow-md";
+        tabSinPlan.className = "px-6 py-2 rounded-full font-bold text-sm transition-all duration-200 text-peach-300/80 hover:text-white";
+      }
+      clearResults();
+    }
+
     function getPayload() {
+      const isConPlan = currentAtlas === "con_plan";
+      
       if (currentMode === "pedido") {
         return {
           cliente: document.getElementById("cliente").value.trim(),
@@ -887,6 +927,9 @@
           prioridad: "",
           fecha_deseada: document.getElementById("fechaDeseada").value,
           comentario: "",
+          con_plan: isConPlan,
+          plan: isConPlan,
+          tipo_atlas: currentAtlas,
           lineas: [] // Empty array as base specification. The backend is expected to resolve lines from db.
         };
       }
@@ -905,6 +948,9 @@
         prioridad: "",
         fecha_deseada: document.getElementById("fechaDeseada").value,
         comentario: "",
+        con_plan: isConPlan,
+        plan: isConPlan,
+        tipo_atlas: currentAtlas,
         lineas
       };
     }
@@ -924,7 +970,7 @@
         }
 
         setLoading(true);
-        showStatus("Calculando impacto contra Atlas sin plan...", "loading");
+        showStatus(`Calculando impacto contra Atlas ${currentAtlas === 'con_plan' ? 'con plan' : 'sin plan'}...`, "loading");
         clearResults();
 
         jsonp(API_URL, {
